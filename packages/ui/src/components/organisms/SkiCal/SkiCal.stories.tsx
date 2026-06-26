@@ -168,6 +168,16 @@ export const Horizontal: Story = {
   render: SkiCalWithArgs,
 };
 
+export const Compact: Story = {
+  args: {
+    orientation: 'horizontal',
+  },
+  globals: {
+    themeMode: 'compact',
+  },
+  render: SkiCalWithArgs,
+};
+
 export const Vertical: Story = {
   args: {
     orientation: 'vertical',
