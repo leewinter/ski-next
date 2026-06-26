@@ -1,9 +1,4 @@
 export {
-  JourneySegmentGantt,
-  type JourneySegmentGanttProps,
-  type JourneySegmentGanttSegment,
-} from './JourneySegmentGantt';
-export {
   ResourceRequirements,
   type ResourceRequirement,
   type ResourceRequirementKind,

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useUiTranslation } from '../../../i18n';
-import { JourneySegmentGantt } from '../../molecules';
+import { JourneySegmentGantt, ResourceRequirements } from '../../molecules';
+import type { ResourceRequirement } from '../../molecules';
 import './SkiCal.css';
 
 export type SkiCalOrientation = 'horizontal' | 'vertical';
@@ -10,6 +11,7 @@ export interface SkiCalResource {
   id: string;
   name: string;
   meta?: string;
+  requirements?: ResourceRequirement[];
 }
 
 export interface SkiCalJourneySegment {
@@ -395,7 +397,12 @@ export function SkiCal({
                 }
                 title={resource.meta}
               >
-                {resource.name}
+                <span className="ski-cal__resource-name">
+                  {resource.name}
+                </span>
+                {resource.requirements?.length ? (
+                  <ResourceRequirements requirements={resource.requirements} />
+                ) : null}
               </div>
             );
           })}

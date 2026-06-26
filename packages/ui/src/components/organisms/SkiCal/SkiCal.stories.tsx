@@ -1,13 +1,29 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useArgs } from 'storybook/preview-api';
 import { SkiCal } from './SkiCal';
-import type { SkiCalOrientation, SkiCalProps } from './SkiCal';
+import type { SkiCalOrientation, SkiCalProps, SkiCalResource } from './SkiCal';
 
 const resources = Array.from({ length: 12 }, (_, index) => ({
   id: `bus-${index + 1}`,
   name: `${index + 2}`,
   meta: `Bus ${index + 2}`,
-}));
+  requirements:
+    index === 0
+      ? [
+          { id: 'bus-2-passengers', kind: 'passenger', quantity: 1 },
+          { id: 'bus-2-baby-seat', kind: 'babySeat', quantity: 1 },
+        ]
+      : index === 1
+        ? [{ id: 'bus-3-booster', kind: 'boosterSeat', quantity: 1 }]
+        : index === 5
+          ? [
+              { id: 'bus-7-passengers', kind: 'passenger', quantity: 2 },
+              { id: 'bus-7-ski-bags', kind: 'skiBag', quantity: 4 },
+            ]
+          : index === 8
+            ? [{ id: 'bus-10-luggage', kind: 'luggage', quantity: 3 }]
+            : undefined,
+})) satisfies SkiCalResource[];
 
 const journeys = [
   {

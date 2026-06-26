@@ -5,6 +5,17 @@
   "journeySegmentGantt": {
     "label": "Journey segment timeline"
   },
+  "resourceRequirements": {
+    "kinds": {
+      "babySeat": "Baby seats",
+      "boosterSeat": "Booster seats",
+      "luggage": "Luggage",
+      "note": "Notes",
+      "passenger": "Passengers",
+      "skiBag": "Ski bags"
+    },
+    "label": "Vehicle requirements"
+  },
   "skiCal": {
     "corner": "Bus / Time",
     "orientation": {

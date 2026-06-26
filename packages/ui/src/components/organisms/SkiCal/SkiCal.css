@@ -140,6 +140,45 @@
   z-index: 2;
 }
 
+.ski-cal__resource-label {
+  flex-direction: column;
+  gap: 5px;
+  overflow: visible;
+  padding: 4px;
+}
+
+.ski-cal__resource-name {
+  color: var(--ski-cal-text-muted);
+  display: block;
+  line-height: 1;
+}
+
+.ski-cal__resource-label:hover,
+.ski-cal__resource-label:focus-within {
+  z-index: 8;
+}
+
+.ski-cal--horizontal .ski-cal__resource-label .resource-requirements__detail {
+  left: 0;
+  top: calc(100% + 4px);
+  transform: translate(0, -2px);
+}
+
+.ski-cal--horizontal
+  .ski-cal__resource-label
+  .resource-requirements:hover
+  .resource-requirements__detail,
+.ski-cal--horizontal
+  .ski-cal__resource-label
+  .resource-requirements:focus-within
+  .resource-requirements__detail,
+.ski-cal--horizontal
+  .ski-cal__resource-label
+  .resource-requirements:focus
+  .resource-requirements__detail {
+  transform: translate(0, 0);
+}
+
 .ski-cal--horizontal .ski-cal__time-label {
   border-left: 1px solid var(--ski-cal-border);
   height: var(--header-size);

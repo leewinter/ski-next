@@ -5,6 +5,17 @@
   "journeySegmentGantt": {
     "label": "Chronologie des segments du trajet"
   },
+  "resourceRequirements": {
+    "kinds": {
+      "babySeat": "Sièges bébé",
+      "boosterSeat": "Réhausseurs",
+      "luggage": "Bagages",
+      "note": "Notes",
+      "passenger": "Passagers",
+      "skiBag": "Sacs à skis"
+    },
+    "label": "Équipement du véhicule"
+  },
   "skiCal": {
     "corner": "Bus / Heure",
     "orientation": {

@@ -3,6 +3,10 @@ export {
   JourneySegmentGantt,
   type JourneySegmentGanttProps,
   type JourneySegmentGanttSegment,
+  ResourceRequirements,
+  type ResourceRequirement,
+  type ResourceRequirementKind,
+  type ResourceRequirementsProps,
 } from './molecules';
 export {
   SkiCal,
