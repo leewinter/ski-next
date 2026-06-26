@@ -10,6 +10,7 @@ export {
 } from './molecules';
 export {
   SkiCal,
+  type SkiCalDateTime,
   type SkiCalJourney,
   type SkiCalJourneyKind,
   type SkiCalJourneySegment,

@@ -7,6 +7,7 @@ import './SkiCal.css';
 export type SkiCalOrientation = 'horizontal' | 'vertical';
 export type SkiCalJourneyKind = 'shared' | 'private' | 'positioning';
 export type SkiCalJourneyState = 'normal' | 'warning' | 'delayed';
+export type SkiCalDateTime = Date | string;
 
 export interface SkiCalResource {
   id: string;
@@ -21,14 +22,18 @@ export interface SkiCalJourneySegment {
   kind?: 'pickup' | 'dropoff' | 'transfer' | 'positioning' | 'buffer';
   startMinutes?: number;
   endMinutes?: number;
+  startDateTime?: SkiCalDateTime;
+  endDateTime?: SkiCalDateTime;
 }
 
 export interface SkiCalJourney {
   id: string;
   resourceId: string;
   title: string;
-  startMinutes: number;
-  endMinutes: number;
+  startMinutes?: number;
+  endMinutes?: number;
+  startDateTime?: SkiCalDateTime;
+  endDateTime?: SkiCalDateTime;
   kind: SkiCalJourneyKind;
   state?: SkiCalJourneyState;
   segments?: SkiCalJourneySegment[];
@@ -42,12 +47,25 @@ export interface SkiCalProps {
   showOrientationToggle?: boolean;
   startMinutes?: number;
   endMinutes?: number;
+  startDateTime?: SkiCalDateTime;
+  endDateTime?: SkiCalDateTime;
   minorMinutes?: number;
   title?: string;
   updatedLabel?: string;
 }
 
-interface PositionedJourney extends SkiCalJourney {
+interface NormalizedJourneySegment extends SkiCalJourneySegment {
+  startMinutes?: number;
+  endMinutes?: number;
+}
+
+interface NormalizedJourney extends SkiCalJourney {
+  startMinutes: number;
+  endMinutes: number;
+  segments?: NormalizedJourneySegment[];
+}
+
+interface PositionedJourney extends NormalizedJourney {
   stack: number;
 }
 
@@ -67,6 +85,56 @@ function formatTime(totalMinutes: number): string {
   return `${hours.toString().padStart(2, '0')}${minutes
     .toString()
     .padStart(2, '0')}`;
+}
+
+function getDateTimeMs(dateTime?: SkiCalDateTime) {
+  if (!dateTime) {
+    return undefined;
+  }
+
+  const time = dateTime instanceof Date ? dateTime.getTime() : Date.parse(dateTime);
+
+  return Number.isFinite(time) ? time : undefined;
+}
+
+function getDateTimeDisplayOffsetMinutes(dateTime?: SkiCalDateTime) {
+  if (!dateTime) {
+    return 0;
+  }
+
+  if (dateTime instanceof Date) {
+    return dateTime.getHours() * 60 + dateTime.getMinutes();
+  }
+
+  const timeMatch = dateTime.match(/T(\d{2}):(\d{2})/);
+
+  if (!timeMatch) {
+    return 0;
+  }
+
+  return Number(timeMatch[1]) * 60 + Number(timeMatch[2]);
+}
+
+function getMinuteFromDateTime(
+  dateTime: SkiCalDateTime | undefined,
+  timelineStartMs: number | undefined,
+) {
+  const dateTimeMs = getDateTimeMs(dateTime);
+
+  if (dateTimeMs === undefined || timelineStartMs === undefined) {
+    return undefined;
+  }
+
+  return Math.round((dateTimeMs - timelineStartMs) / 60000);
+}
+
+function resolveMinute(
+  minuteValue: number | undefined,
+  dateTime: SkiCalDateTime | undefined,
+  timelineStartMs: number | undefined,
+  fallback: number,
+) {
+  return getMinuteFromDateTime(dateTime, timelineStartMs) ?? minuteValue ?? fallback;
 }
 
 function getTimeLabels(startMinutes: number, endMinutes: number) {
@@ -95,8 +163,43 @@ function getTimeGridLines(
   return lines;
 }
 
-function getStackedJourneys(journeys: SkiCalJourney[]): PositionedJourney[] {
-  const byResource = new Map<string, SkiCalJourney[]>();
+function normalizeJourneys(
+  journeys: SkiCalJourney[],
+  timelineStartMs: number | undefined,
+): NormalizedJourney[] {
+  return journeys.map((journey) => {
+    const journeyStartMinutes = resolveMinute(
+      journey.startMinutes,
+      journey.startDateTime,
+      timelineStartMs,
+      0,
+    );
+    const journeyEndMinutes = resolveMinute(
+      journey.endMinutes,
+      journey.endDateTime,
+      timelineStartMs,
+      journeyStartMinutes,
+    );
+
+    return {
+      ...journey,
+      endMinutes: journeyEndMinutes,
+      startMinutes: journeyStartMinutes,
+      segments: journey.segments?.map((segment) => ({
+        ...segment,
+        endMinutes:
+          getMinuteFromDateTime(segment.endDateTime, timelineStartMs) ??
+          segment.endMinutes,
+        startMinutes:
+          getMinuteFromDateTime(segment.startDateTime, timelineStartMs) ??
+          segment.startMinutes,
+      })),
+    };
+  });
+}
+
+function getStackedJourneys(journeys: NormalizedJourney[]): PositionedJourney[] {
+  const byResource = new Map<string, NormalizedJourney[]>();
 
   for (const journey of journeys) {
     const resourceJourneys = byResource.get(journey.resourceId) ?? [];
@@ -178,6 +281,8 @@ export function SkiCal({
   showOrientationToggle = true,
   startMinutes = DEFAULT_START_MINUTES,
   endMinutes = DEFAULT_END_MINUTES,
+  startDateTime,
+  endDateTime,
   minorMinutes = DEFAULT_MINOR_MINUTES,
   title,
   updatedLabel,
@@ -186,24 +291,39 @@ export function SkiCal({
   const [internalOrientation, setInternalOrientation] =
     useState<SkiCalOrientation>('horizontal');
   const currentOrientation = orientation ?? internalOrientation;
-  const duration = endMinutes - startMinutes;
+  const timelineStartMs = getDateTimeMs(startDateTime);
+  const timeDisplayOffsetMinutes =
+    getDateTimeDisplayOffsetMinutes(startDateTime);
+  const resolvedStartMinutes = timelineStartMs === undefined ? startMinutes : 0;
+  const resolvedEndMinutes =
+    getMinuteFromDateTime(endDateTime, timelineStartMs) ?? endMinutes;
+  const duration = resolvedEndMinutes - resolvedStartMinutes;
   const timelineSize = Math.max(duration * PIXELS_PER_MINUTE, 960);
   const timeLabels = useMemo(
-    () => getTimeLabels(startMinutes, endMinutes),
-    [startMinutes, endMinutes],
+    () => getTimeLabels(resolvedStartMinutes, resolvedEndMinutes),
+    [resolvedEndMinutes, resolvedStartMinutes],
   );
   const timeGridLines = useMemo(
-    () => getTimeGridLines(startMinutes, endMinutes, minorMinutes),
-    [endMinutes, minorMinutes, startMinutes],
+    () =>
+      getTimeGridLines(
+        resolvedStartMinutes,
+        resolvedEndMinutes,
+        minorMinutes,
+      ),
+    [minorMinutes, resolvedEndMinutes, resolvedStartMinutes],
   );
   const resourceIndex = useMemo(
     () =>
       new Map(resources.map((resource, index) => [resource.id, index])),
     [resources],
   );
+  const normalizedJourneys = useMemo(
+    () => normalizeJourneys(journeys, timelineStartMs),
+    [journeys, timelineStartMs],
+  );
   const positionedJourneys = useMemo(
-    () => getStackedJourneys(journeys),
-    [journeys],
+    () => getStackedJourneys(normalizedJourneys),
+    [normalizedJourneys],
   );
   const resourceStackCounts = useMemo(
     () => getResourceStackCounts(resources, positionedJourneys),
@@ -215,6 +335,10 @@ export function SkiCal({
     onOrientationChange?.(nextOrientation);
   }
 
+  function formatScheduleTime(minute: number) {
+    return formatTime(minute + timeDisplayOffsetMinutes);
+  }
+
   function getJourneyStyle(journey: PositionedJourney) {
     const index = resourceIndex.get(journey.resourceId) ?? 0;
     const resourceStart = getResourceStartExpression(
@@ -222,7 +346,7 @@ export function SkiCal({
       resourceStackCounts,
     );
     const startOffset =
-      ((journey.startMinutes - startMinutes) / duration) * timelineSize;
+      ((journey.startMinutes - resolvedStartMinutes) / duration) * timelineSize;
     const size =
       ((journey.endMinutes - journey.startMinutes) / duration) * timelineSize;
     const stackOffset = `calc(${journey.stack} * (var(--event-thickness) + var(--event-gap)))`;
@@ -300,7 +424,8 @@ export function SkiCal({
           <div className="ski-cal__corner">{t('skiCal.corner')}</div>
 
           {timeGridLines.map((minute) => {
-            const offset = ((minute - startMinutes) / duration) * timelineSize;
+            const offset =
+              ((minute - resolvedStartMinutes) / duration) * timelineSize;
             const isStrong = minute % 60 === 0;
 
             return (
@@ -353,7 +478,8 @@ export function SkiCal({
           ) : null}
 
           {timeLabels.map((minute) => {
-            const offset = ((minute - startMinutes) / duration) * timelineSize;
+            const offset =
+              ((minute - resolvedStartMinutes) / duration) * timelineSize;
 
             return (
               <div
@@ -368,7 +494,7 @@ export function SkiCal({
                     : { top: `calc(var(--header-size) + ${offset}px)` }
                 }
               >
-                {formatTime(minute)}
+                {formatScheduleTime(minute)}
               </div>
             );
           })}
@@ -416,13 +542,15 @@ export function SkiCal({
               } ski-cal__journey--state-${journey.state ?? 'normal'}`}
               key={journey.id}
               style={getJourneyStyle(journey)}
-              title={`${journey.title}: ${formatTime(
+              title={`${journey.title}: ${formatScheduleTime(
                 journey.startMinutes,
-              )}-${formatTime(journey.endMinutes)}`}
+              )}-${formatScheduleTime(journey.endMinutes)}`}
             >
               <span className="ski-cal__journey-title">{journey.title}</span>
               <span className="ski-cal__journey-time">
-                {formatTime(journey.startMinutes)}-{formatTime(journey.endMinutes)}
+                {`${formatScheduleTime(journey.startMinutes)}-${formatScheduleTime(
+                  journey.endMinutes,
+                )}`}
               </span>
               {journey.segments?.length ? (
                 <>
@@ -449,6 +577,7 @@ export function SkiCal({
                       journeyEndMinutes={journey.endMinutes}
                       journeyStartMinutes={journey.startMinutes}
                       segments={journey.segments}
+                      timeOffsetMinutes={timeDisplayOffsetMinutes}
                     />
                   </span>
                 </>

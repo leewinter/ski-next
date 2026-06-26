@@ -13,6 +13,7 @@ export interface JourneySegmentGanttProps {
   journeyStartMinutes: number;
   journeyEndMinutes: number;
   segments: JourneySegmentGanttSegment[];
+  timeOffsetMinutes?: number;
 }
 
 function formatTime(totalMinutes: number): string {
@@ -43,18 +44,24 @@ function getSegmentPosition(
   };
 }
 
-function getTimeRange(segment: JourneySegmentGanttSegment) {
+function getTimeRange(
+  segment: JourneySegmentGanttSegment,
+  timeOffsetMinutes: number,
+) {
   if (segment.startMinutes === undefined || segment.endMinutes === undefined) {
     return undefined;
   }
 
-  return `${formatTime(segment.startMinutes)}-${formatTime(segment.endMinutes)}`;
+  return `${formatTime(segment.startMinutes + timeOffsetMinutes)}-${formatTime(
+    segment.endMinutes + timeOffsetMinutes,
+  )}`;
 }
 
 export function JourneySegmentGantt({
   journeyStartMinutes,
   journeyEndMinutes,
   segments,
+  timeOffsetMinutes = 0,
 }: JourneySegmentGanttProps) {
   const { t } = useUiTranslation();
 
@@ -64,14 +71,14 @@ export function JourneySegmentGantt({
       className="journey-segment-gantt"
     >
       <div className="journey-segment-gantt__axis">
-        <span>{formatTime(journeyStartMinutes)}</span>
+        <span>{formatTime(journeyStartMinutes + timeOffsetMinutes)}</span>
         <span className="journey-segment-gantt__axis-line" />
-        <span>{formatTime(journeyEndMinutes)}</span>
+        <span>{formatTime(journeyEndMinutes + timeOffsetMinutes)}</span>
       </div>
 
       <div className="journey-segment-gantt__rows">
         {segments.map((segment) => {
-          const timeRange = getTimeRange(segment);
+          const timeRange = getTimeRange(segment, timeOffsetMinutes);
 
           return (
             <div className="journey-segment-gantt__row" key={segment.id}>

@@ -35,3 +35,26 @@ test('can switch orientation with the built-in toggle', async ({ mount }) => {
   await component.getByRole('button', { name: 'Vertical' }).click();
   await expect(component.locator('.ski-cal')).toHaveClass(/ski-cal--vertical/);
 });
+
+test('renders journeys that cross midnight from datetimes', async ({ mount }) => {
+  const component = await mount(
+    <SkiCal
+      endDateTime="2026-02-15T03:00:00+01:00"
+      journeys={[
+        {
+          id: 'overnight',
+          resourceId: 'bus-1',
+          title: 'Late GVA > Morzine',
+          startDateTime: '2026-02-14T23:30:00+01:00',
+          endDateTime: '2026-02-15T01:15:00+01:00',
+          kind: 'private',
+        },
+      ]}
+      resources={resources}
+      startDateTime="2026-02-14T22:00:00+01:00"
+    />,
+  );
+
+  await expect(component).toContainText('Late GVA > Morzine');
+  await expect(component).toContainText('2330-0115');
+});

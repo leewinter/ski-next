@@ -174,3 +174,56 @@ export const Vertical: Story = {
   },
   render: SkiCalWithArgs,
 };
+
+export const OvernightDateTimes: Story = {
+  args: {
+    endDateTime: '2026-02-15T04:00:00+01:00',
+    journeys: [
+      {
+        id: 'overnight-1',
+        resourceId: 'bus-1',
+        title: 'Late GVA > Morzine',
+        startDateTime: '2026-02-14T23:15:00+01:00',
+        endDateTime: '2026-02-15T01:20:00+01:00',
+        kind: 'private',
+        state: 'warning',
+        segments: [
+          {
+            id: 'overnight-1-pickup',
+            kind: 'pickup',
+            label: 'Airport pickup',
+            startDateTime: '2026-02-14T23:15:00+01:00',
+            endDateTime: '2026-02-14T23:35:00+01:00',
+          },
+          {
+            id: 'overnight-1-buffer',
+            kind: 'buffer',
+            label: 'Weather buffer',
+            startDateTime: '2026-02-15T00:10:00+01:00',
+            endDateTime: '2026-02-15T00:40:00+01:00',
+          },
+          {
+            id: 'overnight-1-dropoff',
+            kind: 'dropoff',
+            label: 'Morzine dropoff',
+            startDateTime: '2026-02-15T01:00:00+01:00',
+            endDateTime: '2026-02-15T01:20:00+01:00',
+          },
+        ],
+      },
+      {
+        id: 'overnight-2',
+        resourceId: 'bus-2',
+        title: 'Early return',
+        startDateTime: '2026-02-15T02:00:00+01:00',
+        endDateTime: '2026-02-15T03:30:00+01:00',
+        kind: 'shared',
+      },
+    ],
+    orientation: 'horizontal',
+    startDateTime: '2026-02-14T22:00:00+01:00',
+    startMinutes: undefined,
+    endMinutes: undefined,
+  },
+  render: SkiCalWithArgs,
+};
