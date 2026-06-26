@@ -1,5 +1,17 @@
 {
   "button": {
     "submit": "Submit"
+  },
+  "journeySegmentGantt": {
+    "label": "Journey segment timeline"
+  },
+  "skiCal": {
+    "corner": "Bus / Time",
+    "orientation": {
+      "horizontal": "Horizontal",
+      "label": "Calendar orientation",
+      "vertical": "Vertical"
+    },
+    "title": "SkiCal"
   }
 }

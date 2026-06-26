@@ -1,5 +1,17 @@
 {
   "button": {
     "submit": "Envoyer"
+  },
+  "journeySegmentGantt": {
+    "label": "Chronologie des segments du trajet"
+  },
+  "skiCal": {
+    "corner": "Bus / Heure",
+    "orientation": {
+      "horizontal": "Horizontal",
+      "label": "Orientation du calendrier",
+      "vertical": "Vertical"
+    },
+    "title": "SkiCal"
   }
 }

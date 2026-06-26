@@ -1,0 +1,80 @@
+.journey-segment-gantt {
+  color: #fff;
+  display: grid;
+  gap: 6px;
+  min-width: 280px;
+}
+
+.journey-segment-gantt__axis {
+  align-items: center;
+  color: #d8d2bb;
+  display: grid;
+  font-size: 10px;
+  grid-template-columns: auto 1fr auto;
+  line-height: 1;
+}
+
+.journey-segment-gantt__axis-line {
+  background: rgba(255, 255, 255, 0.22);
+  height: 1px;
+  margin: 0 8px;
+}
+
+.journey-segment-gantt__rows {
+  display: grid;
+  gap: 5px;
+}
+
+.journey-segment-gantt__row {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: minmax(74px, 0.42fr) minmax(140px, 1fr);
+}
+
+.journey-segment-gantt__label {
+  min-width: 0;
+}
+
+.journey-segment-gantt__label-text {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.journey-segment-gantt__label-time {
+  color: #ffd300;
+  display: block;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.journey-segment-gantt__track {
+  align-self: center;
+  background:
+    repeating-linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 255, 255, 0.12) 1px,
+      transparent 1px,
+      transparent 25%
+    ),
+    rgba(255, 255, 255, 0.08);
+  height: 12px;
+  position: relative;
+}
+
+.journey-segment-gantt__bar {
+  background: #ffd300;
+  border: 1px solid rgba(29, 32, 47, 0.3);
+  box-sizing: border-box;
+  height: 100%;
+  min-width: 3px;
+  position: absolute;
+  top: 0;
+}
