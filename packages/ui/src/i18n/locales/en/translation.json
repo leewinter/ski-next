@@ -18,6 +18,16 @@
   },
   "skiCal": {
     "corner": "Bus / Time",
+    "legend": {
+      "buffer": "Delay buffer",
+      "label": "Calendar key",
+      "pickup": "Pickup segment",
+      "positioning": "Positioning or standby",
+      "private": "Private journey",
+      "shared": "Shared journey",
+      "trigger": "Key",
+      "warning": "Warning journey"
+    },
     "orientation": {
       "horizontal": "Horizontal",
       "label": "Calendar orientation",

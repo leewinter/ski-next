@@ -273,6 +273,15 @@ function getResourceAxisSizeExpression(stackCounts: number[]) {
   } * var(--event-gap))`;
 }
 
+const legendItems = [
+  { color: 'shared', labelKey: 'skiCal.legend.shared' },
+  { color: 'private', labelKey: 'skiCal.legend.private' },
+  { color: 'positioning', labelKey: 'skiCal.legend.positioning' },
+  { color: 'pickup', labelKey: 'skiCal.legend.pickup' },
+  { color: 'buffer', labelKey: 'skiCal.legend.buffer' },
+  { color: 'warning', labelKey: 'skiCal.legend.warning' },
+] as const;
+
 export function SkiCal({
   resources,
   journeys,
@@ -393,30 +402,61 @@ export function SkiCal({
           ) : null}
         </div>
 
-        {showOrientationToggle ? (
-          <div
-            aria-label={t('skiCal.orientation.label')}
-            className="ski-cal__toggle"
-            role="group"
-          >
+        <div className="ski-cal__toolbar-actions">
+          <div className="ski-cal__legend">
             <button
-              className="ski-cal__toggle-button"
-              data-active={currentOrientation === 'horizontal'}
-              onClick={() => handleOrientationChange('horizontal')}
+              aria-label={t('skiCal.legend.label')}
+              className="ski-cal__legend-trigger"
               type="button"
             >
-              {t('skiCal.orientation.horizontal')}
+              {t('skiCal.legend.trigger')}
             </button>
-            <button
-              className="ski-cal__toggle-button"
-              data-active={currentOrientation === 'vertical'}
-              onClick={() => handleOrientationChange('vertical')}
-              type="button"
+            <div
+              aria-label={t('skiCal.legend.label')}
+              className="ski-cal__legend-panel"
+              role="list"
             >
-              {t('skiCal.orientation.vertical')}
-            </button>
+              {legendItems.map((item) => (
+                <span
+                  className="ski-cal__legend-item"
+                  key={item.labelKey}
+                  role="listitem"
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`ski-cal__legend-swatch ski-cal__legend-swatch--${item.color}`}
+                  />
+                  <span>{t(item.labelKey)}</span>
+                </span>
+              ))}
+            </div>
           </div>
-        ) : null}
+
+          {showOrientationToggle ? (
+            <div
+              aria-label={t('skiCal.orientation.label')}
+              className="ski-cal__toggle"
+              role="group"
+            >
+              <button
+                className="ski-cal__toggle-button"
+                data-active={currentOrientation === 'horizontal'}
+                onClick={() => handleOrientationChange('horizontal')}
+                type="button"
+              >
+                {t('skiCal.orientation.horizontal')}
+              </button>
+              <button
+                className="ski-cal__toggle-button"
+                data-active={currentOrientation === 'vertical'}
+                onClick={() => handleOrientationChange('vertical')}
+                type="button"
+              >
+                {t('skiCal.orientation.vertical')}
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="ski-cal__viewport">

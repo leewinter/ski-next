@@ -34,6 +34,14 @@
   min-width: 0;
 }
 
+.ski-cal__toolbar-actions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
 .ski-cal__title {
   font-size: 16px;
   font-weight: 700;
@@ -70,6 +78,100 @@
 .ski-cal__toggle-button[data-active='true'] {
   background: var(--ski-cal-brand);
   color: var(--ski-cal-brand-text);
+}
+
+.ski-cal__legend {
+  position: relative;
+}
+
+.ski-cal__legend-trigger {
+  background: var(--ski-cal-elevated);
+  border: 1px solid var(--ski-cal-border);
+  color: var(--ski-cal-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  min-height: 32px;
+  padding: 0 10px;
+}
+
+.ski-cal__legend-trigger:focus-visible {
+  outline: 2px solid var(--ski-cal-brand);
+  outline-offset: 2px;
+}
+
+.ski-cal__legend-panel {
+  background: var(--ski-cal-overlay-bg);
+  color: var(--ski-cal-overlay-text);
+  display: grid;
+  gap: 7px;
+  min-width: 190px;
+  opacity: 0;
+  padding: 9px;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  transform: translateY(-2px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+  z-index: 12;
+}
+
+.ski-cal__legend:hover .ski-cal__legend-panel,
+.ski-cal__legend:focus-within .ski-cal__legend-panel {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.ski-cal__legend-item {
+  align-items: center;
+  display: grid;
+  font-size: 11px;
+  gap: 7px;
+  grid-template-columns: auto 1fr;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.ski-cal__legend-swatch {
+  border: 1px solid rgba(29, 32, 47, 0.3);
+  box-sizing: border-box;
+  display: inline-block;
+  height: 10px;
+  width: 18px;
+}
+
+.ski-cal__legend-swatch--shared {
+  background: var(--ski-cal-journey-shared);
+}
+
+.ski-cal__legend-swatch--private {
+  background: var(--ski-cal-journey-private);
+}
+
+.ski-cal__legend-swatch--positioning {
+  background: var(--ski-cal-journey-positioning);
+}
+
+.ski-cal__legend-swatch--pickup {
+  background: var(--ski-cal-segment-pickup);
+}
+
+.ski-cal__legend-swatch--buffer {
+  background: var(--ski-cal-segment-buffer);
+}
+
+.ski-cal__legend-swatch--warning {
+  background:
+    linear-gradient(transparent, transparent) padding-box,
+    linear-gradient(var(--ski-cal-segment-buffer), var(--ski-cal-segment-buffer))
+      border-box;
+  border: 2px solid transparent;
+  box-shadow: inset 0 0 0 2px rgba(255, 159, 26, 0.42);
 }
 
 .ski-cal__viewport {
@@ -342,6 +444,20 @@
   .ski-cal__toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .ski-cal__toolbar-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ski-cal__legend-trigger {
+    width: 100%;
+  }
+
+  .ski-cal__legend-panel {
+    left: 0;
+    right: auto;
   }
 
   .ski-cal__toggle {

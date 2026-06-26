@@ -18,6 +18,16 @@
   },
   "skiCal": {
     "corner": "Bus / Heure",
+    "legend": {
+      "buffer": "Marge de retard",
+      "label": "Légende du calendrier",
+      "pickup": "Segment de prise en charge",
+      "positioning": "Positionnement ou attente",
+      "private": "Trajet privé",
+      "shared": "Trajet partagé",
+      "trigger": "Légende",
+      "warning": "Trajet à surveiller"
+    },
     "orientation": {
       "horizontal": "Horizontal",
       "label": "Orientation du calendrier",
