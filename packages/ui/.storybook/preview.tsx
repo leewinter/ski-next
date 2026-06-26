@@ -1,10 +1,16 @@
-import type { Preview } from '@storybook/react-vite';
-import React from 'react';
-import type { AppThemeMode } from '../src/providers/AppProvider';
+import type { Preview, StoryContext, StoryFn } from '@storybook/react';
+import type {
+  AppThemeMode,
+  SupportedLanguage,
+} from '../src/providers/AppProvider';
 import { AppProvider } from '../src/providers/AppProvider';
 
 function getThemeMode(value: unknown): AppThemeMode {
   return value === 'dark' || value === 'compact' ? value : 'default';
+}
+
+function getLanguage(value: unknown): SupportedLanguage {
+  return value === 'fr' ? value : 'en';
 }
 
 const preview: Preview = {
@@ -17,6 +23,19 @@ const preview: Preview = {
     },
   },
   globalTypes: {
+    language: {
+      description: 'Locale',
+      defaultValue: 'en',
+      toolbar: {
+        title: 'Language',
+        icon: 'globe',
+        items: [
+          { value: 'en', title: 'English' },
+          { value: 'fr', title: 'French' },
+        ],
+        dynamicTitle: true,
+      },
+    },
     themeMode: {
       description: 'Ant Design theme',
       defaultValue: 'default',
@@ -33,11 +52,12 @@ const preview: Preview = {
     },
   },
   decorators: [
-    (Story, context) => {
+    (Story: StoryFn, context: StoryContext) => {
+      const language = getLanguage(context.globals.language);
       const themeMode = getThemeMode(context.globals.themeMode);
 
       return (
-        <AppProvider themeMode={themeMode}>
+        <AppProvider language={language} themeMode={themeMode}>
           <Story />
         </AppProvider>
       );
