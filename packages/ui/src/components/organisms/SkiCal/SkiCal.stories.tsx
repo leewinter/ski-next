@@ -78,20 +78,14 @@ const journeys = [
     startMinutes: 10 * 60 + 15,
     endMinutes: 14 * 60 + 20,
     kind: 'shared',
+    state: 'warning',
     segments: [
       { id: 'j5-s1', kind: 'pickup', label: 'GVA', startMinutes: 10 * 60 + 15, endMinutes: 10 * 60 + 35 },
+      { id: 'j5-buffer', kind: 'buffer', label: 'Delay buffer', startMinutes: 12 * 60, endMinutes: 12 * 60 + 45 },
       { id: 'j5-s2', kind: 'transfer', label: 'Morzine', startMinutes: 12 * 60 + 10, endMinutes: 12 * 60 + 25 },
       { id: 'j5-s3', kind: 'dropoff', label: 'Avoriaz', startMinutes: 13 * 60, endMinutes: 13 * 60 + 25 },
       { id: 'j5-s4', kind: 'positioning', label: 'Depot', startMinutes: 14 * 60, endMinutes: 14 * 60 + 20 },
     ],
-  },
-  {
-    id: 'j6',
-    resourceId: 'bus-4',
-    title: 'Delay buffer',
-    startMinutes: 12 * 60,
-    endMinutes: 12 * 60 + 45,
-    kind: 'positioning',
   },
   {
     id: 'j7',

@@ -4,7 +4,7 @@ import './JourneySegmentGantt.css';
 export interface JourneySegmentGanttSegment {
   id: string;
   label: string;
-  kind?: 'pickup' | 'dropoff' | 'transfer' | 'positioning';
+  kind?: 'pickup' | 'dropoff' | 'transfer' | 'positioning' | 'buffer';
   startMinutes?: number;
   endMinutes?: number;
 }

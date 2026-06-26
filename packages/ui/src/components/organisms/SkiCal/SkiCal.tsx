@@ -6,6 +6,7 @@ import './SkiCal.css';
 
 export type SkiCalOrientation = 'horizontal' | 'vertical';
 export type SkiCalJourneyKind = 'shared' | 'private' | 'positioning';
+export type SkiCalJourneyState = 'normal' | 'warning' | 'delayed';
 
 export interface SkiCalResource {
   id: string;
@@ -17,7 +18,7 @@ export interface SkiCalResource {
 export interface SkiCalJourneySegment {
   id: string;
   label: string;
-  kind?: 'pickup' | 'dropoff' | 'transfer' | 'positioning';
+  kind?: 'pickup' | 'dropoff' | 'transfer' | 'positioning' | 'buffer';
   startMinutes?: number;
   endMinutes?: number;
 }
@@ -29,6 +30,7 @@ export interface SkiCalJourney {
   startMinutes: number;
   endMinutes: number;
   kind: SkiCalJourneyKind;
+  state?: SkiCalJourneyState;
   segments?: SkiCalJourneySegment[];
 }
 
@@ -409,7 +411,9 @@ export function SkiCal({
 
           {positionedJourneys.map((journey) => (
             <article
-              className={`ski-cal__journey ski-cal__journey--${journey.kind}`}
+              className={`ski-cal__journey ski-cal__journey--${
+                journey.kind
+              } ski-cal__journey--state-${journey.state ?? 'normal'}`}
               key={journey.id}
               style={getJourneyStyle(journey)}
               title={`${journey.title}: ${formatTime(
