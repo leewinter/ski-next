@@ -77,6 +77,21 @@ function getTimeLabels(startMinutes: number, endMinutes: number) {
   return labels;
 }
 
+function getTimeGridLines(
+  startMinutes: number,
+  endMinutes: number,
+  minorMinutes: number,
+) {
+  const firstLine = Math.ceil(startMinutes / minorMinutes) * minorMinutes;
+  const lines: number[] = [];
+
+  for (let minute = firstLine; minute <= endMinutes; minute += minorMinutes) {
+    lines.push(minute);
+  }
+
+  return lines;
+}
+
 function getStackedJourneys(journeys: SkiCalJourney[]): PositionedJourney[] {
   const byResource = new Map<string, SkiCalJourney[]>();
 
@@ -122,6 +137,10 @@ export function SkiCal({
   const timeLabels = useMemo(
     () => getTimeLabels(startMinutes, endMinutes),
     [startMinutes, endMinutes],
+  );
+  const timeGridLines = useMemo(
+    () => getTimeGridLines(startMinutes, endMinutes, minorMinutes),
+    [endMinutes, minorMinutes, startMinutes],
   );
   const resourceIndex = useMemo(
     () =>
@@ -226,6 +245,52 @@ export function SkiCal({
       <div className="ski-cal__viewport">
         <div className="ski-cal__canvas">
           <div className="ski-cal__corner">{t('skiCal.corner')}</div>
+
+          {timeGridLines.map((minute) => {
+            const offset = ((minute - startMinutes) / duration) * timelineSize;
+            const isStrong = minute % 60 === 0;
+
+            return (
+              <span
+                className={`ski-cal__grid-line ski-cal__grid-line--time${
+                  isStrong ? ' ski-cal__grid-line--strong' : ''
+                }`}
+                key={`time-${minute}`}
+                style={
+                  currentOrientation === 'horizontal'
+                    ? { left: HEADER_SIZE + offset }
+                    : { top: HEADER_SIZE + offset }
+                }
+              />
+            );
+          })}
+
+          {resources.map((resource, index) => {
+            const offset = HEADER_SIZE + index * laneSize;
+
+            return (
+              <span
+                className="ski-cal__grid-line ski-cal__grid-line--resource ski-cal__grid-line--strong"
+                key={`resource-line-${resource.id}`}
+                style={
+                  currentOrientation === 'horizontal'
+                    ? { top: offset }
+                    : { left: offset }
+                }
+              />
+            );
+          })}
+
+          {resources.length ? (
+            <span
+              className="ski-cal__grid-line ski-cal__grid-line--resource ski-cal__grid-line--strong"
+              style={
+                currentOrientation === 'horizontal'
+                  ? { top: HEADER_SIZE + resources.length * laneSize }
+                  : { left: HEADER_SIZE + resources.length * laneSize }
+              }
+            />
+          ) : null}
 
           {timeLabels.map((minute) => {
             const offset = ((minute - startMinutes) / duration) * timelineSize;

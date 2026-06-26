@@ -66,22 +66,51 @@
 
 .ski-cal__canvas {
   background-color: var(--ski-cal-surface);
-  background-image:
-    linear-gradient(to right, rgba(234, 223, 184, 0.72) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(199, 190, 163, 0.78) 1px, transparent 1px);
   position: relative;
 }
 
 .ski-cal--horizontal .ski-cal__canvas {
-  background-size: var(--minor-x) 100%, 100% var(--lane-size);
   min-height: calc(var(--header-size) + var(--lane-count) * var(--lane-size));
   min-width: var(--timeline-size);
 }
 
 .ski-cal--vertical .ski-cal__canvas {
-  background-size: var(--lane-size) 100%, 100% var(--minor-y);
   min-height: var(--timeline-size);
   min-width: calc(var(--header-size) + var(--lane-count) * var(--lane-size));
+}
+
+.ski-cal__grid-line {
+  background: var(--ski-cal-grid);
+  position: absolute;
+  z-index: 1;
+}
+
+.ski-cal__grid-line--strong {
+  background: var(--ski-cal-grid-strong);
+}
+
+.ski-cal--horizontal .ski-cal__grid-line--time {
+  bottom: 0;
+  top: var(--header-size);
+  width: 1px;
+}
+
+.ski-cal--horizontal .ski-cal__grid-line--resource {
+  height: 1px;
+  left: var(--header-size);
+  right: 0;
+}
+
+.ski-cal--vertical .ski-cal__grid-line--time {
+  height: 1px;
+  left: var(--header-size);
+  right: 0;
+}
+
+.ski-cal--vertical .ski-cal__grid-line--resource {
+  bottom: 0;
+  top: var(--header-size);
+  width: 1px;
 }
 
 .ski-cal__time-label,

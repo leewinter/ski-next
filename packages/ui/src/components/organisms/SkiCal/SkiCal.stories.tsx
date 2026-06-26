@@ -144,7 +144,17 @@ function SkiCalWithArgs(args: SkiCalProps) {
   );
 }
 
-export const Scheduler: Story = {
+export const Default: Story = {
+  args: {
+    orientation: 'horizontal',
+  },
+  render: SkiCalWithArgs,
+};
+
+export const Horizontal: Story = {
+  args: {
+    orientation: 'horizontal',
+  },
   render: SkiCalWithArgs,
 };
 
