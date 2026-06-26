@@ -18,8 +18,8 @@ const journeys = [
     endMinutes: 8 * 60 + 45,
     kind: 'private',
     segments: [
-      { id: 'j1-s1', label: 'Airport pickup', startMinutes: 7 * 60, endMinutes: 7 * 60 + 20 },
-      { id: 'j1-s2', label: 'Morzine dropoff', startMinutes: 8 * 60 + 20, endMinutes: 8 * 60 + 45 },
+      { id: 'j1-s1', kind: 'pickup', label: 'Airport pickup', startMinutes: 7 * 60, endMinutes: 7 * 60 + 20 },
+      { id: 'j1-s2', kind: 'dropoff', label: 'Morzine dropoff', startMinutes: 8 * 60 + 20, endMinutes: 8 * 60 + 45 },
     ],
   },
   {
@@ -30,9 +30,9 @@ const journeys = [
     endMinutes: 11 * 60 + 10,
     kind: 'shared',
     segments: [
-      { id: 'j2-s1', label: 'GVA', startMinutes: 9 * 60, endMinutes: 9 * 60 + 20 },
-      { id: 'j2-s2', label: 'Les Gets', startMinutes: 10 * 60 + 20, endMinutes: 10 * 60 + 35 },
-      { id: 'j2-s3', label: 'Morzine', startMinutes: 10 * 60 + 45, endMinutes: 11 * 60 + 10 },
+      { id: 'j2-s1', kind: 'pickup', label: 'GVA', startMinutes: 9 * 60, endMinutes: 9 * 60 + 20 },
+      { id: 'j2-s2', kind: 'transfer', label: 'Les Gets', startMinutes: 10 * 60 + 20, endMinutes: 10 * 60 + 35 },
+      { id: 'j2-s3', kind: 'dropoff', label: 'Morzine', startMinutes: 10 * 60 + 45, endMinutes: 11 * 60 + 10 },
     ],
   },
   {
@@ -51,8 +51,8 @@ const journeys = [
     endMinutes: 10 * 60 + 30,
     kind: 'private',
     segments: [
-      { id: 'j4-s1', label: 'Morzine pickup', startMinutes: 8 * 60 + 15, endMinutes: 8 * 60 + 35 },
-      { id: 'j4-s2', label: 'Airport dropoff', startMinutes: 10 * 60 + 10, endMinutes: 10 * 60 + 30 },
+      { id: 'j4-s1', kind: 'pickup', label: 'Morzine pickup', startMinutes: 8 * 60 + 15, endMinutes: 8 * 60 + 35 },
+      { id: 'j4-s2', kind: 'dropoff', label: 'Airport dropoff', startMinutes: 10 * 60 + 10, endMinutes: 10 * 60 + 30 },
     ],
   },
   {
@@ -63,10 +63,10 @@ const journeys = [
     endMinutes: 14 * 60 + 20,
     kind: 'shared',
     segments: [
-      { id: 'j5-s1', label: 'GVA', startMinutes: 10 * 60 + 15, endMinutes: 10 * 60 + 35 },
-      { id: 'j5-s2', label: 'Morzine', startMinutes: 12 * 60 + 10, endMinutes: 12 * 60 + 25 },
-      { id: 'j5-s3', label: 'Avoriaz', startMinutes: 13 * 60, endMinutes: 13 * 60 + 25 },
-      { id: 'j5-s4', label: 'Depot', startMinutes: 14 * 60, endMinutes: 14 * 60 + 20 },
+      { id: 'j5-s1', kind: 'pickup', label: 'GVA', startMinutes: 10 * 60 + 15, endMinutes: 10 * 60 + 35 },
+      { id: 'j5-s2', kind: 'transfer', label: 'Morzine', startMinutes: 12 * 60 + 10, endMinutes: 12 * 60 + 25 },
+      { id: 'j5-s3', kind: 'dropoff', label: 'Avoriaz', startMinutes: 13 * 60, endMinutes: 13 * 60 + 25 },
+      { id: 'j5-s4', kind: 'positioning', label: 'Depot', startMinutes: 14 * 60, endMinutes: 14 * 60 + 20 },
     ],
   },
   {
@@ -85,9 +85,9 @@ const journeys = [
     endMinutes: 18 * 60 + 45,
     kind: 'shared',
     segments: [
-      { id: 'j7-s1', label: 'Airport pickup', startMinutes: 15 * 60 + 30, endMinutes: 15 * 60 + 50 },
-      { id: 'j7-s2', label: 'Morzine stop', startMinutes: 17 * 60 + 40, endMinutes: 17 * 60 + 55 },
-      { id: 'j7-s3', label: 'Avoriaz dropoff', startMinutes: 18 * 60 + 25, endMinutes: 18 * 60 + 45 },
+      { id: 'j7-s1', kind: 'pickup', label: 'Airport pickup', startMinutes: 15 * 60 + 30, endMinutes: 15 * 60 + 50 },
+      { id: 'j7-s2', kind: 'transfer', label: 'Morzine stop', startMinutes: 17 * 60 + 40, endMinutes: 17 * 60 + 55 },
+      { id: 'j7-s3', kind: 'dropoff', label: 'Avoriaz dropoff', startMinutes: 18 * 60 + 25, endMinutes: 18 * 60 + 45 },
     ],
   },
   {

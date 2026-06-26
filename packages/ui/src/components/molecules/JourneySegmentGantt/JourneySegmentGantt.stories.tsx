@@ -10,18 +10,21 @@ const meta: Meta<typeof JourneySegmentGantt> = {
     segments: [
       {
         id: 'pickup',
+        kind: 'pickup',
         label: 'GVA pickup',
         startMinutes: 9 * 60,
         endMinutes: 9 * 60 + 20,
       },
       {
         id: 'les-gets',
+        kind: 'transfer',
         label: 'Les Gets stop',
         startMinutes: 10 * 60 + 20,
         endMinutes: 10 * 60 + 35,
       },
       {
         id: 'morzine',
+        kind: 'dropoff',
         label: 'Morzine dropoff',
         startMinutes: 10 * 60 + 45,
         endMinutes: 11 * 60 + 10,

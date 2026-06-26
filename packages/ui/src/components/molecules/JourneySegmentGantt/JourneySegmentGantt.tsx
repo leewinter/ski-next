@@ -4,6 +4,7 @@ import './JourneySegmentGantt.css';
 export interface JourneySegmentGanttSegment {
   id: string;
   label: string;
+  kind?: 'pickup' | 'dropoff' | 'transfer' | 'positioning';
   startMinutes?: number;
   endMinutes?: number;
 }
@@ -86,7 +87,9 @@ export function JourneySegmentGantt({
               </div>
               <div className="journey-segment-gantt__track">
                 <span
-                  className="journey-segment-gantt__bar"
+                  className={`journey-segment-gantt__bar journey-segment-gantt__bar--${
+                    segment.kind ?? 'transfer'
+                  }`}
                   style={getSegmentPosition(
                     journeyStartMinutes,
                     journeyEndMinutes,

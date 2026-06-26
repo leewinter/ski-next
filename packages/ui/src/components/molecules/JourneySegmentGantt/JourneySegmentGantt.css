@@ -3,6 +3,10 @@
   --journey-segment-gantt-primary-text: var(--ski-next-color-primary-text, #fff);
   --journey-segment-gantt-text: var(--ski-next-color-overlay-text, #fff);
   --journey-segment-gantt-muted: var(--ski-next-color-border, #d9d9d9);
+  --journey-segment-gantt-pickup: #f05f57;
+  --journey-segment-gantt-transfer: #75c984;
+  --journey-segment-gantt-dropoff: #8bbd8e;
+  --journey-segment-gantt-positioning: #ffd300;
   color: var(--journey-segment-gantt-text);
   display: grid;
   gap: 6px;
@@ -75,11 +79,23 @@
 }
 
 .journey-segment-gantt__bar {
-  background: var(--journey-segment-gantt-primary);
+  background: var(--journey-segment-gantt-transfer);
   border: 1px solid rgba(29, 32, 47, 0.3);
   box-sizing: border-box;
   height: 100%;
   min-width: 3px;
   position: absolute;
   top: 0;
+}
+
+.journey-segment-gantt__bar--pickup {
+  background: var(--journey-segment-gantt-pickup);
+}
+
+.journey-segment-gantt__bar--dropoff {
+  background: var(--journey-segment-gantt-dropoff);
+}
+
+.journey-segment-gantt__bar--positioning {
+  background: var(--journey-segment-gantt-positioning);
 }

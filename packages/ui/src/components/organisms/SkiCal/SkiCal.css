@@ -13,6 +13,12 @@
   --ski-cal-elevated: var(--ski-next-color-bg-elevated, #fff);
   --ski-cal-overlay-bg: var(--ski-next-color-overlay-bg, rgba(31, 31, 31, 0.94));
   --ski-cal-overlay-text: var(--ski-next-color-overlay-text, #fff);
+  --ski-cal-journey-shared: #87cf8f;
+  --ski-cal-journey-private: #5fa56b;
+  --ski-cal-journey-positioning: #fff176;
+  --ski-cal-segment-pickup: #f05f57;
+  --ski-cal-segment-transfer: rgba(29, 32, 47, 0.18);
+  --ski-cal-segment-dropoff: rgba(29, 32, 47, 0.12);
   color: var(--ski-cal-text);
   display: grid;
   gap: 10px;
@@ -190,15 +196,15 @@
 }
 
 .ski-cal__journey--shared {
-  background: rgba(97, 190, 115, 0.78);
+  background: var(--ski-cal-journey-shared);
 }
 
 .ski-cal__journey--private {
-  background: rgba(255, 146, 136, 0.78);
+  background: var(--ski-cal-journey-private);
 }
 
 .ski-cal__journey--positioning {
-  background: rgba(255, 211, 0, 0.58);
+  background: var(--ski-cal-journey-positioning);
 }
 
 .ski-cal__journey-title {
@@ -228,9 +234,21 @@
 }
 
 .ski-cal__segment {
-  background: rgba(29, 32, 47, 0.16);
+  background: var(--ski-cal-segment-transfer);
   border-radius: 999px;
   height: 3px;
+}
+
+.ski-cal__segment--pickup {
+  background: var(--ski-cal-segment-pickup);
+}
+
+.ski-cal__segment--dropoff {
+  background: var(--ski-cal-segment-dropoff);
+}
+
+.ski-cal__segment--positioning {
+  background: var(--ski-cal-journey-positioning);
 }
 
 .ski-cal__segment-detail {

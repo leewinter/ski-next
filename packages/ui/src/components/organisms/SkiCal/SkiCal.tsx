@@ -15,6 +15,7 @@ export interface SkiCalResource {
 export interface SkiCalJourneySegment {
   id: string;
   label: string;
+  kind?: 'pickup' | 'dropoff' | 'transfer' | 'positioning';
   startMinutes?: number;
   endMinutes?: number;
 }
@@ -424,7 +425,9 @@ export function SkiCal({
                   >
                     {journey.segments.map((segment) => (
                       <span
-                        className="ski-cal__segment"
+                        className={`ski-cal__segment ski-cal__segment--${
+                          segment.kind ?? 'transfer'
+                        }`}
                         key={segment.id}
                         title={segment.label}
                       />
