@@ -1,0 +1,9 @@
+{
+  "extends": "@ski-next/tsconfig/react-library.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true,
+    "emitDeclarationOnly": false
+  },
+  "include": ["src", ".storybook", "playwright-ct.config.ts"]
+}

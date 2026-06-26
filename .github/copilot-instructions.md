@@ -1,0 +1,1 @@
+See [AGENTS.md](../AGENTS.md) for commands and architecture — it's the shared source of truth for all coding agents working in this repo (Claude Code, Copilot, Codex). Keep that file up to date rather than duplicating its content here.

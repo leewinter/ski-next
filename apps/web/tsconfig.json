@@ -1,0 +1,7 @@
+{
+  "extends": "@ski-next/tsconfig/vite-app.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": ["src", "vite.config.ts"]
+}

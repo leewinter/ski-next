@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+storybook-static/
+*.local
+.env
+.env.*
+!.env.example
+coverage/
+playwright-report/
+test-results/
+.cache/
+.turbo/
+*.log
+.DS_Store
