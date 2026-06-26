@@ -1,12 +1,18 @@
 .ski-cal {
-  --ski-cal-border: #d8d2bb;
-  --ski-cal-grid: #eadfb8;
-  --ski-cal-grid-strong: #c7bea3;
-  --ski-cal-surface: #fffdf0;
-  --ski-cal-muted: #f2f2f2;
-  --ski-cal-text: #1d202f;
-  --ski-cal-header: #1d202f;
-  --ski-cal-brand: #ffd300;
+  --ski-cal-border: var(--ski-next-color-border, #d9d9d9);
+  --ski-cal-grid: var(--ski-next-color-grid, #e8e8e8);
+  --ski-cal-grid-strong: var(--ski-next-color-grid-strong, #cfcfcf);
+  --ski-cal-surface: var(--ski-next-color-bg, #fff);
+  --ski-cal-muted: var(--ski-next-color-bg-layout, #f5f5f5);
+  --ski-cal-text: var(--ski-next-color-text, #1f1f1f);
+  --ski-cal-text-muted: var(--ski-next-color-text-muted, #6f6f6f);
+  --ski-cal-header: var(--ski-next-color-header-bg, #f5f5f5);
+  --ski-cal-header-text: var(--ski-next-color-header-text, #1f1f1f);
+  --ski-cal-brand: var(--ski-next-color-primary, #1677ff);
+  --ski-cal-brand-text: var(--ski-next-color-primary-text, #fff);
+  --ski-cal-elevated: var(--ski-next-color-bg-elevated, #fff);
+  --ski-cal-overlay-bg: var(--ski-next-color-overlay-bg, rgba(31, 31, 31, 0.94));
+  --ski-cal-overlay-text: var(--ski-next-color-overlay-text, #fff);
   color: var(--ski-cal-text);
   display: grid;
   gap: 10px;
@@ -29,13 +35,13 @@
 }
 
 .ski-cal__meta {
-  color: #6f6f6f;
+  color: var(--ski-cal-text-muted);
   font-size: 12px;
   margin-top: 2px;
 }
 
 .ski-cal__toggle {
-  background: #fff;
+  background: var(--ski-cal-elevated);
   border: 1px solid var(--ski-cal-border);
   display: inline-grid;
   grid-template-columns: repeat(2, minmax(86px, 1fr));
@@ -56,6 +62,7 @@
 
 .ski-cal__toggle-button[data-active='true'] {
   background: var(--ski-cal-brand);
+  color: var(--ski-cal-brand-text);
 }
 
 .ski-cal__viewport {
@@ -70,13 +77,13 @@
 }
 
 .ski-cal--horizontal .ski-cal__canvas {
-  min-height: calc(var(--header-size) + var(--lane-count) * var(--lane-size));
+  min-height: calc(var(--header-size) + var(--resource-axis-size));
   min-width: var(--timeline-size);
 }
 
 .ski-cal--vertical .ski-cal__canvas {
   min-height: var(--timeline-size);
-  min-width: calc(var(--header-size) + var(--lane-count) * var(--lane-size));
+  min-width: calc(var(--header-size) + var(--resource-axis-size));
 }
 
 .ski-cal__grid-line {
@@ -116,9 +123,9 @@
 .ski-cal__time-label,
 .ski-cal__resource-label {
   align-items: center;
-  background: rgba(242, 242, 242, 0.94);
+  background: var(--ski-cal-muted);
   border-color: var(--ski-cal-border);
-  color: #4f4f4f;
+  color: var(--ski-cal-text-muted);
   display: flex;
   font-size: 12px;
   font-weight: 700;
@@ -136,7 +143,6 @@
 .ski-cal--horizontal .ski-cal__resource-label {
   border-bottom: 1px solid var(--ski-cal-border);
   border-right: 1px solid var(--ski-cal-border);
-  height: var(--lane-size);
   left: 0;
   width: var(--header-size);
 }
@@ -154,13 +160,12 @@
   border-bottom: 1px solid var(--ski-cal-border);
   height: var(--header-size);
   top: 0;
-  width: var(--lane-size);
 }
 
 .ski-cal__corner {
   align-items: center;
   background: var(--ski-cal-header);
-  color: #fff;
+  color: var(--ski-cal-header-text);
   display: flex;
   font-size: 12px;
   font-weight: 700;
@@ -229,8 +234,8 @@
 }
 
 .ski-cal__segment-detail {
-  background: rgba(29, 32, 47, 0.94);
-  color: #fff;
+  background: var(--ski-cal-overlay-bg);
+  color: var(--ski-cal-overlay-text);
   left: 6px;
   min-width: min(360px, calc(100vw - 40px));
   opacity: 0;

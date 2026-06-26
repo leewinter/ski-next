@@ -33,5 +33,5 @@ test('can switch orientation with the built-in toggle', async ({ mount }) => {
   );
 
   await component.getByRole('button', { name: 'Vertical' }).click();
-  await expect(component).toHaveClass(/ski-cal--vertical/);
+  await expect(component.locator('.ski-cal')).toHaveClass(/ski-cal--vertical/);
 });

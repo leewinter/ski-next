@@ -1,15 +1,13 @@
 import { test, expect } from '@playwright/experimental-ct-react';
 import { Button } from './Button';
+import { ButtonClickHarness } from './Button.test-harness';
 
 test('renders default label and responds to click', async ({ mount }) => {
-  let clicked = false;
-  const component = await mount(
-    <Button type="primary" onClick={() => (clicked = true)} />,
-  );
+  const component = await mount(<ButtonClickHarness />);
 
   await expect(component).toContainText('Submit');
-  await component.click();
-  expect(clicked).toBe(true);
+  await component.getByRole('button').click();
+  await expect(component).toContainText('Clicked');
 });
 
 test('renders a custom label when children are provided', async ({ mount }) => {
