@@ -6,7 +6,9 @@ import type {
 import { AppProvider } from '../src/providers/AppProvider';
 
 function getThemeMode(value: unknown): AppThemeMode {
-  return value === 'dark' || value === 'compact' ? value : 'default';
+  return value === 'dark' || value === 'compact' || value === 'skiidy'
+    ? value
+    : 'default';
 }
 
 function getLanguage(value: unknown): SupportedLanguage {
@@ -44,6 +46,7 @@ const preview: Preview = {
         icon: 'paintbrush',
         items: [
           { value: 'default', title: 'Default' },
+          { value: 'skiidy', title: 'Skiidy' },
           { value: 'dark', title: 'Dark' },
           { value: 'compact', title: 'Compact' },
         ],

@@ -9,7 +9,7 @@ import { I18nextProvider } from 'react-i18next';
 import { uiI18n } from '../i18n';
 
 export type SupportedLanguage = 'en' | 'fr';
-export type AppThemeMode = 'default' | 'dark' | 'compact';
+export type AppThemeMode = 'default' | 'dark' | 'compact' | 'skiidy';
 
 const ANTD_LOCALES: Record<SupportedLanguage, Locale> = {
   en: enUS,
@@ -23,6 +23,43 @@ const ANTD_THEMES: Record<AppThemeMode, ThemeConfig> = {
   },
   compact: {
     algorithm: antdTheme.compactAlgorithm,
+  },
+  skiidy: {
+    token: {
+      colorPrimary: '#ffd300',
+      colorInfo: '#2cade9',
+      colorSuccess: '#368a55',
+      colorWarning: '#f08a24',
+      colorError: '#f04124',
+      colorTextBase: '#1d202f',
+      colorBgBase: '#fff',
+      colorBgLayout: '#f2f2f2',
+      colorBorder: '#ccc',
+      borderRadius: 2,
+      fontFamily:
+        "Arial, Helvetica, 'Helvetica Neue', sans-serif",
+    },
+    components: {
+      Button: {
+        primaryColor: '#1d202f',
+        primaryShadow: 'none',
+      },
+      Layout: {
+        headerBg: '#1d202f',
+        headerColor: '#fff',
+        bodyBg: '#f2f2f2',
+      },
+      Menu: {
+        darkItemBg: '#1d202f',
+        darkItemSelectedBg: '#171a26',
+        darkItemSelectedColor: '#ffd300',
+      },
+      Table: {
+        headerBg: '#ffd300',
+        headerColor: '#1d202f',
+        rowHoverBg: '#fff8bf',
+      },
+    },
   },
 };
 
