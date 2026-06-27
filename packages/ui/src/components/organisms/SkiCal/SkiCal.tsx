@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useUiTranslation } from '../../../i18n';
 import { JourneySegmentGantt, ResourceRequirements } from '../../molecules';
 import type { ResourceRequirement } from '../../molecules';
@@ -79,6 +79,11 @@ const DEFAULT_HEADER_SIZE = 72;
 const PIXELS_PER_MINUTE = 1.08;
 const DEFAULT_EVENT_THICKNESS = 42;
 const DEFAULT_EVENT_GAP = 6;
+
+interface ViewportSize {
+  height: number;
+  width: number;
+}
 
 function formatTime(totalMinutes: number): string {
   const normalized = ((totalMinutes % 1440) + 1440) % 1440;
@@ -301,12 +306,17 @@ export function SkiCal({
   updatedLabel,
 }: SkiCalProps) {
   const { t } = useUiTranslation();
+  const viewportRef = useRef<HTMLDivElement>(null);
   const [internalOrientation, setInternalOrientation] =
     useState<SkiCalOrientation>('horizontal');
   const [selectedJourneyId, setSelectedJourneyId] = useState<string>();
   const [journeyOverrides, setJourneyOverrides] = useState<
     Record<string, SkiCalJourney>
   >({});
+  const [viewportSize, setViewportSize] = useState<ViewportSize>({
+    height: 0,
+    width: 0,
+  });
   const currentOrientation = orientation ?? internalOrientation;
   const timelineStartMs = getDateTimeMs(startDateTime);
   const timeDisplayOffsetMinutes =
@@ -315,7 +325,15 @@ export function SkiCal({
   const resolvedEndMinutes =
     getMinuteFromDateTime(endDateTime, timelineStartMs) ?? endMinutes;
   const duration = resolvedEndMinutes - resolvedStartMinutes;
-  const timelineSize = Math.max(duration * PIXELS_PER_MINUTE, 960);
+  const visibleTimelineSize =
+    currentOrientation === 'horizontal'
+      ? Math.max(viewportSize.width - DEFAULT_HEADER_SIZE, 0)
+      : Math.max(viewportSize.height - DEFAULT_HEADER_SIZE, 0);
+  const timelineSize = Math.max(
+    duration * PIXELS_PER_MINUTE,
+    visibleTimelineSize,
+    960,
+  );
   const timeLabels = useMemo(
     () => getTimeLabels(resolvedStartMinutes, resolvedEndMinutes),
     [resolvedEndMinutes, resolvedStartMinutes],
@@ -354,6 +372,30 @@ export function SkiCal({
     () => getResourceStackCounts(resources, positionedJourneys),
     [positionedJourneys, resources],
   );
+
+  useEffect(() => {
+    const observedViewport = viewportRef.current;
+
+    if (!observedViewport) {
+      return undefined;
+    }
+
+    const viewportElement: HTMLDivElement = observedViewport;
+
+    function updateViewportSize() {
+      setViewportSize({
+        height: viewportElement.clientHeight,
+        width: viewportElement.clientWidth,
+      });
+    }
+
+    updateViewportSize();
+
+    const resizeObserver = new ResizeObserver(updateViewportSize);
+    resizeObserver.observe(viewportElement);
+
+    return () => resizeObserver.disconnect();
+  }, []);
 
   function handleOrientationChange(nextOrientation: SkiCalOrientation) {
     setInternalOrientation(nextOrientation);
@@ -493,7 +535,7 @@ export function SkiCal({
         </div>
       </div>
 
-      <div className="ski-cal__viewport">
+      <div className="ski-cal__viewport" ref={viewportRef}>
         <div className="ski-cal__canvas">
           <div className="ski-cal__corner">{t('skiCal.corner')}</div>
 
