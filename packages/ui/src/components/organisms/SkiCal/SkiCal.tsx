@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, PointerEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useUiTranslation } from '../../../i18n';
 import { JourneySegmentGantt, ResourceRequirements } from '../../molecules';
@@ -79,6 +79,7 @@ const DEFAULT_HEADER_SIZE = 72;
 const PIXELS_PER_MINUTE = 1.08;
 const DEFAULT_EVENT_THICKNESS = 42;
 const DEFAULT_EVENT_GAP = 6;
+const RESIZE_STEP_MINUTES = 5;
 
 interface ViewportSize {
   height: number;
@@ -143,6 +144,35 @@ function resolveMinute(
   fallback: number,
 ) {
   return getMinuteFromDateTime(dateTime, timelineStartMs) ?? minuteValue ?? fallback;
+}
+
+function getDateTimeFromTimelineMinute(
+  minute: number,
+  timelineStartMs: number | undefined,
+) {
+  if (timelineStartMs === undefined) {
+    return undefined;
+  }
+
+  return new Date(timelineStartMs + minute * 60000).toISOString();
+}
+
+function getUpdatedDateTime(
+  minute: number,
+  currentDateTime: SkiCalDateTime | undefined,
+  timelineStartMs: number | undefined,
+) {
+  return (
+    getDateTimeFromTimelineMinute(minute, timelineStartMs) ?? currentDateTime
+  );
+}
+
+function snapMinute(minute: number) {
+  return Math.round(minute / RESIZE_STEP_MINUTES) * RESIZE_STEP_MINUTES;
+}
+
+function clampMinute(minute: number, min: number, max: number) {
+  return Math.min(Math.max(minute, min), max);
 }
 
 function getTimeLabels(startMinutes: number, endMinutes: number) {
@@ -307,6 +337,7 @@ export function SkiCal({
 }: SkiCalProps) {
   const { t } = useUiTranslation();
   const viewportRef = useRef<HTMLDivElement>(null);
+  const suppressJourneyClickRef = useRef(false);
   const [internalOrientation, setInternalOrientation] =
     useState<SkiCalOrientation>('horizontal');
   const [selectedJourneyId, setSelectedJourneyId] = useState<string>();
@@ -408,6 +439,93 @@ export function SkiCal({
       [journey.id]: journey,
     }));
     onJourneyChange?.(journey);
+  }
+
+  function getResizedJourney(
+    journey: PositionedJourney,
+    edge: 'start' | 'end',
+    nextMinute: number,
+  ): SkiCalJourney {
+    const nextStartMinutes =
+      edge === 'start'
+        ? clampMinute(
+            snapMinute(nextMinute),
+            resolvedStartMinutes,
+            journey.endMinutes - RESIZE_STEP_MINUTES,
+          )
+        : journey.startMinutes;
+    const nextEndMinutes =
+      edge === 'end'
+        ? clampMinute(
+            snapMinute(nextMinute),
+            journey.startMinutes + RESIZE_STEP_MINUTES,
+            resolvedEndMinutes,
+          )
+        : journey.endMinutes;
+
+    return {
+      ...journey,
+      endDateTime: getUpdatedDateTime(
+        nextEndMinutes,
+        journey.endDateTime,
+        timelineStartMs,
+      ),
+      endMinutes: nextEndMinutes,
+      startDateTime: getUpdatedDateTime(
+        nextStartMinutes,
+        journey.startDateTime,
+        timelineStartMs,
+      ),
+      startMinutes: nextStartMinutes,
+    };
+  }
+
+  function handleJourneyResizeStart(
+    event: PointerEvent<HTMLSpanElement>,
+    journey: PositionedJourney,
+    edge: 'start' | 'end',
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+    suppressJourneyClickRef.current = true;
+
+    const pointerStart =
+      currentOrientation === 'horizontal' ? event.clientX : event.clientY;
+    const initialMinute =
+      edge === 'start' ? journey.startMinutes : journey.endMinutes;
+    let latestJourney = getResizedJourney(journey, edge, initialMinute);
+
+    function handlePointerMove(pointerEvent: globalThis.PointerEvent) {
+      const pointerPosition =
+        currentOrientation === 'horizontal'
+          ? pointerEvent.clientX
+          : pointerEvent.clientY;
+      const deltaMinutes =
+        ((pointerPosition - pointerStart) / timelineSize) * duration;
+      latestJourney = getResizedJourney(
+        journey,
+        edge,
+        initialMinute + deltaMinutes,
+      );
+
+      setJourneyOverrides((currentOverrides) => ({
+        ...currentOverrides,
+        [journey.id]: latestJourney,
+      }));
+    }
+
+    function handlePointerUp() {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      onJourneyChange?.(latestJourney);
+
+      window.setTimeout(() => {
+        suppressJourneyClickRef.current = false;
+      }, 0);
+    }
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp, { once: true });
   }
 
   function handleJourneyKeyDown(
@@ -660,7 +778,13 @@ export function SkiCal({
                 journey.kind
               } ski-cal__journey--state-${journey.state ?? 'normal'}`}
               key={journey.id}
-              onClick={() => setSelectedJourneyId(journey.id)}
+              onClick={() => {
+                if (suppressJourneyClickRef.current) {
+                  return;
+                }
+
+                setSelectedJourneyId(journey.id);
+              }}
               onKeyDown={(event) => handleJourneyKeyDown(event, journey.id)}
               role="button"
               style={getJourneyStyle(journey)}
@@ -669,6 +793,24 @@ export function SkiCal({
                 journey.startMinutes,
               )}-${formatScheduleTime(journey.endMinutes)}`}
             >
+              <span
+                aria-label={t('skiCal.resize.start')}
+                className="ski-cal__resize-handle ski-cal__resize-handle--start"
+                onPointerDown={(event) =>
+                  handleJourneyResizeStart(event, journey, 'start')
+                }
+                role="slider"
+                tabIndex={-1}
+              />
+              <span
+                aria-label={t('skiCal.resize.end')}
+                className="ski-cal__resize-handle ski-cal__resize-handle--end"
+                onPointerDown={(event) =>
+                  handleJourneyResizeStart(event, journey, 'end')
+                }
+                role="slider"
+                tabIndex={-1}
+              />
               <span className="ski-cal__journey-title">{journey.title}</span>
               <span className="ski-cal__journey-time">
                 {`${formatScheduleTime(journey.startMinutes)}-${formatScheduleTime(

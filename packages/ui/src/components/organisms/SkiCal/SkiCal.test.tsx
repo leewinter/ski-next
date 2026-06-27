@@ -125,3 +125,33 @@ test('edits segment datetimes from the visual timeline', async ({ mount, page })
     ],
   });
 });
+
+test('resizes a journey from the main calendar', async ({ mount, page }) => {
+  const changes: Array<{ endMinutes?: number }> = [];
+
+  await mount(
+    <SkiCal
+      journeys={journeys}
+      onJourneyChange={(journey) => changes.push(journey)}
+      resources={resources}
+      startMinutes={6 * 60}
+      endMinutes={12 * 60}
+    />,
+  );
+
+  const endHandle = page.getByLabel('Resize journey end');
+  const box = await endHandle.boundingBox();
+  expect(box).not.toBeNull();
+
+  if (!box) {
+    return;
+  }
+
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2);
+  await page.mouse.up();
+
+  expect(changes).toHaveLength(1);
+  expect(changes[0]?.endMinutes).toBeGreaterThan(9 * 60);
+});

@@ -343,6 +343,49 @@
   outline-offset: 2px;
 }
 
+.ski-cal__resize-handle {
+  background: rgba(29, 32, 47, 0.34);
+  opacity: 0;
+  position: absolute;
+  transition: opacity 120ms ease;
+  z-index: 5;
+}
+
+.ski-cal__journey:hover .ski-cal__resize-handle,
+.ski-cal__journey:focus-within .ski-cal__resize-handle {
+  opacity: 1;
+}
+
+.ski-cal--horizontal .ski-cal__resize-handle {
+  bottom: 0;
+  cursor: ew-resize;
+  top: 0;
+  width: 7px;
+}
+
+.ski-cal--horizontal .ski-cal__resize-handle--start {
+  left: 0;
+}
+
+.ski-cal--horizontal .ski-cal__resize-handle--end {
+  right: 0;
+}
+
+.ski-cal--vertical .ski-cal__resize-handle {
+  cursor: ns-resize;
+  height: 7px;
+  left: 0;
+  right: 0;
+}
+
+.ski-cal--vertical .ski-cal__resize-handle--start {
+  top: 0;
+}
+
+.ski-cal--vertical .ski-cal__resize-handle--end {
+  bottom: 0;
+}
+
 .ski-cal__journey--shared {
   background: var(--ski-cal-journey-shared);
 }

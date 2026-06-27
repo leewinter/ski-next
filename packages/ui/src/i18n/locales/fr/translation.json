@@ -73,6 +73,10 @@
       "label": "Orientation du calendrier",
       "vertical": "Vertical"
     },
+    "resize": {
+      "end": "Redimensionner la fin du trajet",
+      "start": "Redimensionner le début du trajet"
+    },
     "title": "SkiCal"
   }
 }
