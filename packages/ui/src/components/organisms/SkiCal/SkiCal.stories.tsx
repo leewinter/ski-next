@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from 'storybook/test';
 import { useArgs } from 'storybook/preview-api';
 import { SkiCal } from './SkiCal';
-import type { SkiCalOrientation, SkiCalProps, SkiCalResource } from './SkiCal';
+import type {
+  SkiCalJourney,
+  SkiCalOrientation,
+  SkiCalProps,
+  SkiCalResource,
+} from './SkiCal';
 
 const resources = Array.from({ length: 12 }, (_, index) => ({
   id: `bus-${index + 1}`,
@@ -154,6 +160,33 @@ const journeys = minuteJourneys.map((journey) => ({
       : getStoryDateTime(journey.startMinutes),
 })) satisfies React.ComponentProps<typeof SkiCal>['journeys'];
 
+const resizeInteractionJourneys = [
+  {
+    id: 'resize-demo',
+    resourceId: 'bus-1',
+    title: 'GVA > Morzine',
+    startMinutes: 7 * 60,
+    endMinutes: 9 * 60,
+    kind: 'private',
+    segments: [
+      {
+        id: 'resize-demo-pickup',
+        kind: 'pickup',
+        label: 'Airport pickup',
+        startMinutes: 7 * 60,
+        endMinutes: 7 * 60 + 20,
+      },
+      {
+        id: 'resize-demo-dropoff',
+        kind: 'dropoff',
+        label: 'Morzine dropoff',
+        startMinutes: 8 * 60 + 40,
+        endMinutes: 9 * 60,
+      },
+    ],
+  },
+] satisfies SkiCalJourney[];
+
 const meta: Meta<typeof SkiCal> = {
   title: 'Organisms/SkiCal',
   component: SkiCal,
@@ -185,9 +218,83 @@ function SkiCalWithArgs(args: SkiCalProps) {
     args.onOrientationChange?.(orientation);
   }
 
+  function handleJourneyChange(journey: SkiCalJourney) {
+    updateArgs({
+      journeys: args.journeys.map((currentJourney) =>
+        currentJourney.id === journey.id ? journey : currentJourney,
+      ),
+    });
+    args.onJourneyChange?.(journey);
+  }
+
   return (
-    <SkiCal {...args} onOrientationChange={handleOrientationChange} />
+    <SkiCal
+      {...args}
+      onJourneyChange={handleJourneyChange}
+      onOrientationChange={handleOrientationChange}
+    />
   );
+}
+
+async function dragResizeHandle(handle: HTMLElement, deltaX: number) {
+  const box = handle.getBoundingClientRect();
+  const view = handle.ownerDocument.defaultView;
+
+  if (!view) {
+    return;
+  }
+
+  const startX = box.left + box.width / 2;
+  const startY = box.top + box.height / 2;
+
+  handle.dispatchEvent(
+    new view.PointerEvent('pointerdown', {
+      bubbles: true,
+      button: 0,
+      buttons: 1,
+      clientX: startX,
+      clientY: startY,
+      pointerId: 1,
+      pointerType: 'mouse',
+    }),
+  );
+  view.dispatchEvent(
+    new view.PointerEvent('pointermove', {
+      bubbles: true,
+      buttons: 1,
+      clientX: startX + deltaX,
+      clientY: startY,
+      pointerId: 1,
+      pointerType: 'mouse',
+    }),
+  );
+  view.dispatchEvent(
+    new view.PointerEvent('pointerup', {
+      bubbles: true,
+      button: 0,
+      clientX: startX + deltaX,
+      clientY: startY,
+      pointerId: 1,
+      pointerType: 'mouse',
+    }),
+  );
+
+  await new Promise((resolve) => view.setTimeout(resolve, 50));
+}
+
+function getJourneyLabelMinutes(label: string) {
+  const timeMatch = label.match(/: (\d{2})(\d{2})-(\d{2})(\d{2})$/);
+
+  if (!timeMatch) {
+    return undefined;
+  }
+
+  const [, startHour, startMinute, endHour, endMinute] = timeMatch;
+
+  return {
+    end: Number(endHour) * 60 + Number(endMinute),
+    start: Number(startHour) * 60 + Number(startMinute),
+  };
 }
 
 export const Default: Story = {
@@ -217,6 +324,55 @@ export const Compact: Story = {
 export const Vertical: Story = {
   args: {
     orientation: 'vertical',
+  },
+  render: SkiCalWithArgs,
+};
+
+export const ResizeJourneyInteraction: Story = {
+  args: {
+    endDateTime: undefined,
+    endMinutes: 12 * 60,
+    journeys: resizeInteractionJourneys,
+    orientation: 'horizontal',
+    resources: resources.slice(0, 2),
+    startDateTime: undefined,
+    startMinutes: 6 * 60,
+    title: 'Resizable journey demo',
+    updatedLabel: 'Drag the journey handles in the story interaction',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const journey = canvas.getByRole('button', {
+      name: /GVA > Morzine:/,
+    });
+
+    await expect(journey).toBeVisible();
+    const initialLabel = journey.getAttribute('aria-label') ?? '';
+    const initialTimes = getJourneyLabelMinutes(initialLabel);
+
+    const startHandle = canvas.getAllByRole('slider', {
+      name: 'Resize journey start',
+    })[0];
+    const endHandle = canvas.getAllByRole('slider', {
+      name: 'Resize journey end',
+    })[0];
+
+    await expect(startHandle).toBeDefined();
+    await expect(endHandle).toBeDefined();
+
+    if (!startHandle || !endHandle) {
+      throw new Error('Expected SkiCal resize handles to render.');
+    }
+
+    const startDelta =
+      initialTimes && initialTimes.start <= 6 * 60 + 15 ? 50 : -50;
+    const endDelta =
+      initialTimes && initialTimes.end >= 12 * 60 - 15 ? -80 : 80;
+
+    await dragResizeHandle(startHandle, startDelta);
+    await dragResizeHandle(endHandle, endDelta);
+
+    await expect(journey).not.toHaveAccessibleName(initialLabel);
   },
   render: SkiCalWithArgs,
 };
