@@ -31,7 +31,10 @@
 
 .resource-requirements__item {
   align-items: center;
-  color: var(--resource-requirements-muted);
+  color: var(
+    --resource-requirement-color,
+    var(--resource-requirements-muted)
+  );
   display: inline-flex;
   font-size: 11px;
   gap: 3px;
@@ -75,6 +78,10 @@
   gap: 6px;
   grid-template-columns: auto minmax(0, 1fr) auto;
   line-height: 1.2;
+}
+
+.resource-requirements__detail-row .resource-requirements__icon {
+  color: var(--resource-requirement-color, currentColor);
 }
 
 .resource-requirements__detail-label {

@@ -1,6 +1,10 @@
 import { Button, Divider, Drawer, Form, Input, Select, Space } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useUiTranslation } from '../../../i18n';
+import type {
+  ResourceRequirement,
+  ResourceRequirementKind,
+} from '../../molecules';
 import type {
   SkiCalJourney,
   SkiCalJourneyKind,
@@ -15,6 +19,7 @@ export interface JourneyDetailsPanelProps {
   open: boolean;
   resources: SkiCalResource[];
   onClose: () => void;
+  onResourceChange?: (resource: SkiCalResource) => void;
   onSave?: (journey: SkiCalJourney) => void;
 }
 
@@ -40,6 +45,14 @@ const segmentKindOptions: NonNullable<SkiCalJourneySegment['kind']>[] = [
   'buffer',
 ];
 const DEFAULT_SEGMENT_DURATION_MINUTES = 15;
+const requirementKindOptions: ResourceRequirementKind[] = [
+  'passenger',
+  'babySeat',
+  'boosterSeat',
+  'luggage',
+  'skiBag',
+  'note',
+];
 
 function getNumberValue(value: unknown) {
   if (value === '' || value === undefined || value === null) {
@@ -209,11 +222,21 @@ export function JourneyDetailsPanel({
   open,
   resources,
   onClose,
+  onResourceChange,
   onSave,
 }: JourneyDetailsPanelProps) {
   const { t } = useUiTranslation();
   const [form] = Form.useForm<JourneyDetailsFormValue>();
   const watchedSegments = Form.useWatch('segments', form);
+  const watchedResourceId = Form.useWatch('resourceId', form);
+  const selectedResource = useMemo(
+    () =>
+      resources.find(
+        (resource) => resource.id === (watchedResourceId ?? journey?.resourceId),
+      ),
+    [journey?.resourceId, resources, watchedResourceId],
+  );
+  const [requirements, setRequirements] = useState<ResourceRequirement[]>([]);
   const journeyDurationMinutes = getJourneyDurationMinutes(journey);
 
   useEffect(() => {
@@ -227,14 +250,68 @@ export function JourneyDetailsPanel({
     }
   }, [form, journey]);
 
+  useEffect(() => {
+    setRequirements(selectedResource?.requirements ?? []);
+  }, [selectedResource?.id, selectedResource?.requirements]);
+
   function handleSave() {
     if (!journey) {
       return;
     }
 
     const value = form.getFieldsValue(true);
+    if (selectedResource) {
+      onResourceChange?.({
+        ...selectedResource,
+        requirements: requirements
+          .filter((requirement) => requirement.quantity > 0)
+          .map((requirement) => ({
+            ...requirement,
+            label: requirement.label?.trim() || undefined,
+            quantity: Number(requirement.quantity) || 0,
+          })),
+      });
+    }
+
     onSave?.(normalizeFormValue(value, journey));
     onClose();
+  }
+
+  function updateRequirement(
+    requirementId: string,
+    patch: Partial<ResourceRequirement>,
+  ) {
+    setRequirements((currentRequirements) =>
+      currentRequirements.map((requirement) =>
+        requirement.id === requirementId
+          ? {
+              ...requirement,
+              ...patch,
+            }
+          : requirement,
+      ),
+    );
+  }
+
+  function addRequirement() {
+    const kind: ResourceRequirementKind = 'passenger';
+
+    setRequirements((currentRequirements) => [
+      ...currentRequirements,
+      {
+        id: `requirement-${Date.now()}`,
+        kind,
+        quantity: 1,
+      },
+    ]);
+  }
+
+  function removeRequirement(requirementId: string) {
+    setRequirements((currentRequirements) =>
+      currentRequirements.filter(
+        (requirement) => requirement.id !== requirementId,
+      ),
+    );
   }
 
   function handleSegmentRangeChange(
@@ -362,6 +439,76 @@ export function JourneyDetailsPanel({
             >
               <Input type="datetime-local" />
             </Form.Item>
+          </div>
+
+          <Divider orientation="left">
+            {t('journeyDetailsPanel.resourceRequirements')}
+          </Divider>
+
+          <div className="journey-details-panel__requirements">
+            {requirements.map((requirement) => (
+              <div
+                className="journey-details-panel__requirement"
+                key={requirement.id}
+              >
+                <label className="journey-details-panel__field">
+                  <span>
+                    {t('journeyDetailsPanel.fields.requirementKind')}
+                  </span>
+                  <Select
+                    options={requirementKindOptions.map((kind) => ({
+                      label: t(`resourceRequirements.kinds.${kind}`),
+                      value: kind,
+                    }))}
+                    onChange={(kind) =>
+                      updateRequirement(requirement.id, { kind })
+                    }
+                    value={requirement.kind}
+                  />
+                </label>
+
+                <label className="journey-details-panel__field">
+                  <span>
+                    {t('journeyDetailsPanel.fields.requirementLabel')}
+                  </span>
+                  <Input
+                    onChange={(event) =>
+                      updateRequirement(requirement.id, {
+                        label: event.currentTarget.value,
+                      })
+                    }
+                    value={requirement.label}
+                  />
+                </label>
+
+                <label className="journey-details-panel__field">
+                  <span>
+                    {t('journeyDetailsPanel.fields.requirementQuantity')}
+                  </span>
+                  <Input
+                    min={0}
+                    onChange={(event) =>
+                      updateRequirement(requirement.id, {
+                        quantity: Number(event.currentTarget.value),
+                      })
+                    }
+                    type="number"
+                    value={requirement.quantity}
+                  />
+                </label>
+
+                <Button
+                  danger
+                  onClick={() => removeRequirement(requirement.id)}
+                >
+                  {t('journeyDetailsPanel.removeRequirement')}
+                </Button>
+              </div>
+            ))}
+
+            <Button onClick={addRequirement} type="dashed">
+              {t('journeyDetailsPanel.addRequirement')}
+            </Button>
           </div>
 
           <Divider orientation="left">

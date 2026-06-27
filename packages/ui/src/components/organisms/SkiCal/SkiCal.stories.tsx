@@ -10,18 +10,18 @@ const resources = Array.from({ length: 12 }, (_, index) => ({
   requirements:
     index === 0
       ? [
-          { id: 'bus-1-passengers', kind: 'passenger', quantity: 1 },
-          { id: 'bus-1-baby-seat', kind: 'babySeat', quantity: 1 },
+          { color: '#2563eb', id: 'bus-1-passengers', kind: 'passenger', quantity: 1 },
+          { color: '#d97706', id: 'bus-1-baby-seat', kind: 'babySeat', quantity: 1 },
         ]
       : index === 1
-        ? [{ id: 'bus-2-booster', kind: 'boosterSeat', quantity: 1 }]
+        ? [{ color: '#7c3aed', id: 'bus-2-booster', kind: 'boosterSeat', quantity: 1 }]
         : index === 5
           ? [
-              { id: 'bus-6-passengers', kind: 'passenger', quantity: 2 },
-              { id: 'bus-6-ski-bags', kind: 'skiBag', quantity: 4 },
+              { color: '#2563eb', id: 'bus-6-passengers', kind: 'passenger', quantity: 2 },
+              { color: '#0891b2', id: 'bus-6-ski-bags', kind: 'skiBag', quantity: 4 },
             ]
           : index === 8
-            ? [{ id: 'bus-9-luggage', kind: 'luggage', quantity: 3 }]
+            ? [{ color: '#8a5a2b', id: 'bus-9-luggage', kind: 'luggage', quantity: 3 }]
             : undefined,
 })) satisfies SkiCalResource[];
 

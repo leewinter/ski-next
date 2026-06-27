@@ -47,6 +47,7 @@ export interface SkiCalProps {
   orientation?: SkiCalOrientation;
   onJourneyChange?: (journey: SkiCalJourney) => void;
   onOrientationChange?: (orientation: SkiCalOrientation) => void;
+  onResourceChange?: (resource: SkiCalResource) => void;
   showOrientationToggle?: boolean;
   startMinutes?: number;
   endMinutes?: number;
@@ -326,6 +327,7 @@ export function SkiCal({
   orientation,
   onJourneyChange,
   onOrientationChange,
+  onResourceChange,
   showOrientationToggle = true,
   startMinutes = DEFAULT_START_MINUTES,
   endMinutes = DEFAULT_END_MINUTES,
@@ -343,6 +345,9 @@ export function SkiCal({
   const [selectedJourneyId, setSelectedJourneyId] = useState<string>();
   const [journeyOverrides, setJourneyOverrides] = useState<
     Record<string, SkiCalJourney>
+  >({});
+  const [resourceOverrides, setResourceOverrides] = useState<
+    Record<string, SkiCalResource>
   >({});
   const [viewportSize, setViewportSize] = useState<ViewportSize>({
     height: 0,
@@ -378,10 +383,14 @@ export function SkiCal({
       ),
     [minorMinutes, resolvedEndMinutes, resolvedStartMinutes],
   );
+  const effectiveResources = useMemo(
+    () => resources.map((resource) => resourceOverrides[resource.id] ?? resource),
+    [resourceOverrides, resources],
+  );
   const resourceIndex = useMemo(
     () =>
-      new Map(resources.map((resource, index) => [resource.id, index])),
-    [resources],
+      new Map(effectiveResources.map((resource, index) => [resource.id, index])),
+    [effectiveResources],
   );
   const effectiveJourneys = useMemo(
     () => journeys.map((journey) => journeyOverrides[journey.id] ?? journey),
@@ -400,8 +409,8 @@ export function SkiCal({
     [normalizedJourneys],
   );
   const resourceStackCounts = useMemo(
-    () => getResourceStackCounts(resources, positionedJourneys),
-    [positionedJourneys, resources],
+    () => getResourceStackCounts(effectiveResources, positionedJourneys),
+    [effectiveResources, positionedJourneys],
   );
 
   useEffect(() => {
@@ -439,6 +448,14 @@ export function SkiCal({
       [journey.id]: journey,
     }));
     onJourneyChange?.(journey);
+  }
+
+  function handleResourceSave(resource: SkiCalResource) {
+    setResourceOverrides((currentOverrides) => ({
+      ...currentOverrides,
+      [resource.id]: resource,
+    }));
+    onResourceChange?.(resource);
   }
 
   function getResizedJourney(
@@ -577,7 +594,7 @@ export function SkiCal({
       style={
         {
           '--header-size': `var(--ski-next-ski-cal-header-size, ${DEFAULT_HEADER_SIZE}px)`,
-          '--lane-count': resources.length,
+          '--lane-count': effectiveResources.length,
           '--event-thickness': `var(--ski-next-ski-cal-event-thickness, ${DEFAULT_EVENT_THICKNESS}px)`,
           '--event-gap': `var(--ski-next-ski-cal-event-gap, ${DEFAULT_EVENT_GAP}px)`,
           '--resource-axis-size':
@@ -677,7 +694,7 @@ export function SkiCal({
             );
           })}
 
-          {resources.map((resource, index) => {
+          {effectiveResources.map((resource, index) => {
             const resourceStart = getResourceStartExpression(
               index,
               resourceStackCounts,
@@ -696,7 +713,7 @@ export function SkiCal({
             );
           })}
 
-          {resources.length ? (
+          {effectiveResources.length ? (
             <span
               className="ski-cal__grid-line ski-cal__grid-line--resource ski-cal__grid-line--strong"
               style={
@@ -733,7 +750,7 @@ export function SkiCal({
             );
           })}
 
-          {resources.map((resource, index) => {
+          {effectiveResources.map((resource, index) => {
             const resourceStart = getResourceStartExpression(
               index,
               resourceStackCounts,
@@ -855,9 +872,10 @@ export function SkiCal({
       <JourneyDetailsPanel
         journey={selectedJourney}
         onClose={() => setSelectedJourneyId(undefined)}
+        onResourceChange={handleResourceSave}
         onSave={handleJourneySave}
         open={selectedJourney !== undefined}
-        resources={resources}
+        resources={effectiveResources}
       />
     </section>
   );

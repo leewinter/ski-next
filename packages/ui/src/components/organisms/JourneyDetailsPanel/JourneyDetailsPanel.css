@@ -8,6 +8,29 @@
   margin-bottom: 12px;
 }
 
+.journey-details-panel__requirements {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.journey-details-panel__requirement {
+  align-items: end;
+  border: 1px solid var(--ski-next-color-border, #d9d9d9);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) 84px auto;
+  padding: 10px;
+}
+
+.journey-details-panel__field {
+  color: var(--ski-next-color-text, #1f1f1f);
+  display: grid;
+  font-size: 12px;
+  font-weight: 600;
+  gap: 4px;
+}
+
 .journey-details-panel__segments {
   display: grid;
   gap: 12px;
@@ -115,6 +138,7 @@
 
 @media (max-width: 560px) {
   .journey-details-panel__grid,
+  .journey-details-panel__requirement,
   .journey-details-panel__segment-grid {
     grid-template-columns: 1fr;
   }

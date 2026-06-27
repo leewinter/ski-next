@@ -73,6 +73,50 @@ test('opens journey details and saves edits', async ({ mount, page }) => {
   await expect(page.getByText('Updated transfer')).toBeVisible();
 });
 
+test('edits resource requirements from journey details', async ({ mount, page }) => {
+  const resourceChanges: unknown[] = [];
+
+  await mount(
+    <SkiCal
+      journeys={journeys}
+      onResourceChange={(resource) => resourceChanges.push(resource)}
+      resources={[
+        {
+          id: 'bus-1',
+          name: '2',
+          requirements: [
+            {
+              color: '#d97706',
+              id: 'bus-1-baby-seat',
+              kind: 'babySeat',
+              quantity: 1,
+            },
+          ],
+        },
+        { id: 'bus-2', name: '3' },
+      ]}
+    />,
+  );
+
+  await page.getByRole('button', { name: /GVA > Morzine/ }).click();
+  await expect(page.getByText('Vehicle requirements')).toBeVisible();
+
+  await page.getByLabel('Quantity').fill('2');
+  await page.getByRole('button', { name: 'Save' }).click();
+
+  expect(resourceChanges).toHaveLength(1);
+  expect(resourceChanges[0]).toMatchObject({
+    requirements: [
+      {
+        color: '#d97706',
+        kind: 'babySeat',
+        quantity: 2,
+      },
+    ],
+  });
+  await expect(page.getByTitle('Baby seats x 2')).toBeVisible();
+});
+
 test('edits segment datetimes from the visual timeline', async ({ mount, page }) => {
   const changes: unknown[] = [];
 

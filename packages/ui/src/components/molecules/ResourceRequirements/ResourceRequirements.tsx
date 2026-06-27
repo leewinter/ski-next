@@ -6,7 +6,7 @@ import {
   TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { useUiTranslation } from '../../../i18n';
 import './ResourceRequirements.css';
 
@@ -23,6 +23,7 @@ export interface ResourceRequirement {
   kind: ResourceRequirementKind;
   quantity: number;
   label?: string;
+  color?: string;
 }
 
 export interface ResourceRequirementsProps {
@@ -68,6 +69,11 @@ export function ResourceRequirements({
           <span
             className="resource-requirements__item"
             key={requirement.id}
+            style={
+              {
+                '--resource-requirement-color': requirement.color,
+              } as CSSProperties
+            }
             title={`${getRequirementLabel(requirement)} x ${
               requirement.quantity
             }`}
@@ -87,7 +93,15 @@ export function ResourceRequirements({
 
       <div className="resource-requirements__detail">
         {visibleRequirements.map((requirement) => (
-          <div className="resource-requirements__detail-row" key={requirement.id}>
+          <div
+            className="resource-requirements__detail-row"
+            key={requirement.id}
+            style={
+              {
+                '--resource-requirement-color': requirement.color,
+              } as CSSProperties
+            }
+          >
             <span aria-hidden="true" className="resource-requirements__icon">
               {requirementIcons[requirement.kind]}
             </span>
