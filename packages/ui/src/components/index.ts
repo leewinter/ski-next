@@ -9,6 +9,8 @@ export {
   type ResourceRequirementsProps,
 } from './molecules';
 export {
+  JourneyDetailsPanel,
+  type JourneyDetailsPanelProps,
   SkiCal,
   type SkiCalDateTime,
   type SkiCalJourney,

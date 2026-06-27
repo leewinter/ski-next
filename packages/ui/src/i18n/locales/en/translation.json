@@ -5,6 +5,46 @@
   "journeySegmentGantt": {
     "label": "Journey segment timeline"
   },
+  "journeyDetailsPanel": {
+    "addSegment": "Add segment",
+    "adjustSegmentEnd": "Adjust segment end",
+    "adjustSegmentStart": "Adjust segment start",
+    "cancel": "Cancel",
+    "fields": {
+      "endDateTime": "End time",
+      "kind": "Journey type",
+      "resource": "Vehicle",
+      "segmentEndDateTime": "Segment end",
+      "segmentKind": "Segment type",
+      "segmentLabel": "Segment label",
+      "segmentStartDateTime": "Segment start",
+      "startDateTime": "Start time",
+      "state": "Status",
+      "title": "Title"
+    },
+    "kinds": {
+      "positioning": "Positioning",
+      "private": "Private",
+      "shared": "Shared"
+    },
+    "newSegment": "New segment",
+    "removeSegment": "Remove segment",
+    "save": "Save",
+    "segmentKinds": {
+      "buffer": "Delay buffer",
+      "dropoff": "Dropoff",
+      "pickup": "Pickup",
+      "positioning": "Positioning",
+      "transfer": "Transfer"
+    },
+    "segments": "Segments",
+    "states": {
+      "delayed": "Delayed",
+      "normal": "Normal",
+      "warning": "Warning"
+    },
+    "title": "Journey details"
+  },
   "resourceRequirements": {
     "kinds": {
       "babySeat": "Baby seats",

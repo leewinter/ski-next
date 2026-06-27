@@ -5,6 +5,46 @@
   "journeySegmentGantt": {
     "label": "Chronologie des segments du trajet"
   },
+  "journeyDetailsPanel": {
+    "addSegment": "Ajouter un segment",
+    "adjustSegmentEnd": "Ajuster la fin du segment",
+    "adjustSegmentStart": "Ajuster le début du segment",
+    "cancel": "Annuler",
+    "fields": {
+      "endDateTime": "Heure de fin",
+      "kind": "Type de trajet",
+      "resource": "Véhicule",
+      "segmentEndDateTime": "Fin du segment",
+      "segmentKind": "Type de segment",
+      "segmentLabel": "Libellé du segment",
+      "segmentStartDateTime": "Début du segment",
+      "startDateTime": "Heure de début",
+      "state": "Statut",
+      "title": "Titre"
+    },
+    "kinds": {
+      "positioning": "Positionnement",
+      "private": "Privé",
+      "shared": "Partagé"
+    },
+    "newSegment": "Nouveau segment",
+    "removeSegment": "Supprimer le segment",
+    "save": "Enregistrer",
+    "segmentKinds": {
+      "buffer": "Marge de retard",
+      "dropoff": "Dépose",
+      "pickup": "Prise en charge",
+      "positioning": "Positionnement",
+      "transfer": "Transfert"
+    },
+    "segments": "Segments",
+    "states": {
+      "delayed": "Retardé",
+      "normal": "Normal",
+      "warning": "À surveiller"
+    },
+    "title": "Détails du trajet"
+  },
   "resourceRequirements": {
     "kinds": {
       "babySeat": "Sièges bébé",

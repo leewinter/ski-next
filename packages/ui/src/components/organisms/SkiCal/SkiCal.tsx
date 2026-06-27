@@ -1,7 +1,9 @@
+import type { KeyboardEvent } from 'react';
 import { useMemo, useState } from 'react';
 import { useUiTranslation } from '../../../i18n';
 import { JourneySegmentGantt, ResourceRequirements } from '../../molecules';
 import type { ResourceRequirement } from '../../molecules';
+import { JourneyDetailsPanel } from '../JourneyDetailsPanel';
 import './SkiCal.css';
 
 export type SkiCalOrientation = 'horizontal' | 'vertical';
@@ -43,6 +45,7 @@ export interface SkiCalProps {
   resources: SkiCalResource[];
   journeys: SkiCalJourney[];
   orientation?: SkiCalOrientation;
+  onJourneyChange?: (journey: SkiCalJourney) => void;
   onOrientationChange?: (orientation: SkiCalOrientation) => void;
   showOrientationToggle?: boolean;
   startMinutes?: number;
@@ -286,6 +289,7 @@ export function SkiCal({
   resources,
   journeys,
   orientation,
+  onJourneyChange,
   onOrientationChange,
   showOrientationToggle = true,
   startMinutes = DEFAULT_START_MINUTES,
@@ -299,6 +303,10 @@ export function SkiCal({
   const { t } = useUiTranslation();
   const [internalOrientation, setInternalOrientation] =
     useState<SkiCalOrientation>('horizontal');
+  const [selectedJourneyId, setSelectedJourneyId] = useState<string>();
+  const [journeyOverrides, setJourneyOverrides] = useState<
+    Record<string, SkiCalJourney>
+  >({});
   const currentOrientation = orientation ?? internalOrientation;
   const timelineStartMs = getDateTimeMs(startDateTime);
   const timeDisplayOffsetMinutes =
@@ -326,9 +334,17 @@ export function SkiCal({
       new Map(resources.map((resource, index) => [resource.id, index])),
     [resources],
   );
+  const effectiveJourneys = useMemo(
+    () => journeys.map((journey) => journeyOverrides[journey.id] ?? journey),
+    [journeyOverrides, journeys],
+  );
+  const selectedJourney = useMemo(
+    () => effectiveJourneys.find((journey) => journey.id === selectedJourneyId),
+    [effectiveJourneys, selectedJourneyId],
+  );
   const normalizedJourneys = useMemo(
-    () => normalizeJourneys(journeys, timelineStartMs),
-    [journeys, timelineStartMs],
+    () => normalizeJourneys(effectiveJourneys, timelineStartMs),
+    [effectiveJourneys, timelineStartMs],
   );
   const positionedJourneys = useMemo(
     () => getStackedJourneys(normalizedJourneys),
@@ -342,6 +358,24 @@ export function SkiCal({
   function handleOrientationChange(nextOrientation: SkiCalOrientation) {
     setInternalOrientation(nextOrientation);
     onOrientationChange?.(nextOrientation);
+  }
+
+  function handleJourneySave(journey: SkiCalJourney) {
+    setJourneyOverrides((currentOverrides) => ({
+      ...currentOverrides,
+      [journey.id]: journey,
+    }));
+    onJourneyChange?.(journey);
+  }
+
+  function handleJourneyKeyDown(
+    event: KeyboardEvent<HTMLElement>,
+    journeyId: string,
+  ) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      setSelectedJourneyId(journeyId);
+    }
   }
 
   function formatScheduleTime(minute: number) {
@@ -577,11 +611,18 @@ export function SkiCal({
 
           {positionedJourneys.map((journey) => (
             <article
+              aria-label={`${journey.title}: ${formatScheduleTime(
+                journey.startMinutes,
+              )}-${formatScheduleTime(journey.endMinutes)}`}
               className={`ski-cal__journey ski-cal__journey--${
                 journey.kind
               } ski-cal__journey--state-${journey.state ?? 'normal'}`}
               key={journey.id}
+              onClick={() => setSelectedJourneyId(journey.id)}
+              onKeyDown={(event) => handleJourneyKeyDown(event, journey.id)}
+              role="button"
               style={getJourneyStyle(journey)}
+              tabIndex={0}
               title={`${journey.title}: ${formatScheduleTime(
                 journey.startMinutes,
               )}-${formatScheduleTime(journey.endMinutes)}`}
@@ -626,6 +667,14 @@ export function SkiCal({
           ))}
         </div>
       </div>
+
+      <JourneyDetailsPanel
+        journey={selectedJourney}
+        onClose={() => setSelectedJourneyId(undefined)}
+        onSave={handleJourneySave}
+        open={selectedJourney !== undefined}
+        resources={resources}
+      />
     </section>
   );
 }

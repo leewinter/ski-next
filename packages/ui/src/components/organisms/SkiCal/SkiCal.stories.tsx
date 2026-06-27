@@ -25,7 +25,20 @@ const resources = Array.from({ length: 12 }, (_, index) => ({
             : undefined,
 })) satisfies SkiCalResource[];
 
-const journeys = [
+function getStoryDateTime(totalMinutes: number) {
+  const baseDate = new Date('2026-02-14T00:00:00+01:00');
+  baseDate.setMinutes(baseDate.getMinutes() + totalMinutes);
+
+  const year = baseDate.getFullYear();
+  const month = (baseDate.getMonth() + 1).toString().padStart(2, '0');
+  const day = baseDate.getDate().toString().padStart(2, '0');
+  const hours = baseDate.getHours().toString().padStart(2, '0');
+  const minutes = baseDate.getMinutes().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:00+01:00`;
+}
+
+const minuteJourneys: React.ComponentProps<typeof SkiCal>['journeys'] = [
   {
     id: 'j1',
     resourceId: 'bus-1',
@@ -116,7 +129,30 @@ const journeys = [
     endMinutes: 18 * 60 + 10,
     kind: 'shared',
   },
-] satisfies React.ComponentProps<typeof SkiCal>['journeys'];
+];
+
+const journeys = minuteJourneys.map((journey) => ({
+  ...journey,
+  endDateTime:
+    journey.endMinutes === undefined
+      ? journey.endDateTime
+      : getStoryDateTime(journey.endMinutes),
+  segments: journey.segments?.map((segment) => ({
+    ...segment,
+    endDateTime:
+      segment.endMinutes === undefined
+        ? segment.endDateTime
+        : getStoryDateTime(segment.endMinutes),
+    startDateTime:
+      segment.startMinutes === undefined
+        ? segment.startDateTime
+        : getStoryDateTime(segment.startMinutes),
+  })),
+  startDateTime:
+    journey.startMinutes === undefined
+      ? journey.startDateTime
+      : getStoryDateTime(journey.startMinutes),
+})) satisfies React.ComponentProps<typeof SkiCal>['journeys'];
 
 const meta: Meta<typeof SkiCal> = {
   title: 'Organisms/SkiCal',
@@ -127,8 +163,8 @@ const meta: Meta<typeof SkiCal> = {
     title: 'Skiidy transfer board',
     updatedLabel: 'Updated 9 minutes ago',
     orientation: 'horizontal',
-    startMinutes: 6 * 60,
-    endMinutes: 24 * 60 + 4 * 60,
+    startDateTime: getStoryDateTime(6 * 60),
+    endDateTime: getStoryDateTime(24 * 60 + 4 * 60),
   },
   argTypes: {
     orientation: {

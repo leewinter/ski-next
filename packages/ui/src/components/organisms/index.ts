@@ -1,4 +1,8 @@
 export {
+  JourneyDetailsPanel,
+  type JourneyDetailsPanelProps,
+} from './JourneyDetailsPanel';
+export {
   SkiCal,
   type SkiCalDateTime,
   type SkiCalJourney,
