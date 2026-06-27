@@ -451,27 +451,53 @@ export function JourneyDetailsPanel({
                 className="journey-details-panel__requirement"
                 key={requirement.id}
               >
-                <label className="journey-details-panel__field">
-                  <span>
-                    {t('journeyDetailsPanel.fields.requirementKind')}
-                  </span>
-                  <Select
-                    options={requirementKindOptions.map((kind) => ({
-                      label: t(`resourceRequirements.kinds.${kind}`),
-                      value: kind,
-                    }))}
-                    onChange={(kind) =>
-                      updateRequirement(requirement.id, { kind })
-                    }
-                    value={requirement.kind}
-                  />
-                </label>
+                <div className="journey-details-panel__requirement-main">
+                  <label className="journey-details-panel__field">
+                    <span>
+                      {t('journeyDetailsPanel.fields.requirementKind')}
+                    </span>
+                    <Select
+                      options={requirementKindOptions.map((kind) => ({
+                        label: t(`resourceRequirements.kinds.${kind}`),
+                        value: kind,
+                      }))}
+                      onChange={(kind) =>
+                        updateRequirement(requirement.id, { kind })
+                      }
+                      value={requirement.kind}
+                    />
+                  </label>
 
-                <label className="journey-details-panel__field">
+                  <label className="journey-details-panel__field">
+                    <span>
+                      {t('journeyDetailsPanel.fields.requirementQuantity')}
+                    </span>
+                    <Input
+                      min={0}
+                      onChange={(event) =>
+                        updateRequirement(requirement.id, {
+                          quantity: Number(event.currentTarget.value),
+                        })
+                      }
+                      type="number"
+                      value={requirement.quantity}
+                    />
+                  </label>
+
+                  <Button
+                    danger
+                    onClick={() => removeRequirement(requirement.id)}
+                  >
+                    {t('journeyDetailsPanel.removeRequirement')}
+                  </Button>
+                </div>
+
+                <label className="journey-details-panel__field journey-details-panel__field--full">
                   <span>
                     {t('journeyDetailsPanel.fields.requirementLabel')}
                   </span>
-                  <Input
+                  <Input.TextArea
+                    autoSize={{ minRows: 2, maxRows: 4 }}
                     onChange={(event) =>
                       updateRequirement(requirement.id, {
                         label: event.currentTarget.value,
@@ -480,29 +506,6 @@ export function JourneyDetailsPanel({
                     value={requirement.label}
                   />
                 </label>
-
-                <label className="journey-details-panel__field">
-                  <span>
-                    {t('journeyDetailsPanel.fields.requirementQuantity')}
-                  </span>
-                  <Input
-                    min={0}
-                    onChange={(event) =>
-                      updateRequirement(requirement.id, {
-                        quantity: Number(event.currentTarget.value),
-                      })
-                    }
-                    type="number"
-                    value={requirement.quantity}
-                  />
-                </label>
-
-                <Button
-                  danger
-                  onClick={() => removeRequirement(requirement.id)}
-                >
-                  {t('journeyDetailsPanel.removeRequirement')}
-                </Button>
               </div>
             ))}
 

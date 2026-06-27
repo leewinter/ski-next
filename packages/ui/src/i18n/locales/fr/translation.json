@@ -15,7 +15,7 @@
       "endDateTime": "Heure de fin",
       "kind": "Type de trajet",
       "requirementKind": "Équipement",
-      "requirementLabel": "Libellé",
+      "requirementLabel": "Notes",
       "requirementQuantity": "Quantité",
       "resource": "Véhicule",
       "segmentEndDateTime": "Fin du segment",
