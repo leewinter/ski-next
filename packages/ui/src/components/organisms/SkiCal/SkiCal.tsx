@@ -1,4 +1,4 @@
-import type { KeyboardEvent, PointerEvent } from 'react';
+import type { FocusEvent, KeyboardEvent, MouseEvent, PointerEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useUiTranslation } from '../../../i18n';
 import { JourneySegmentGantt, ResourceRequirements } from '../../molecules';
@@ -71,6 +71,13 @@ interface NormalizedJourney extends SkiCalJourney {
 
 interface PositionedJourney extends NormalizedJourney {
   stack: number;
+}
+
+interface SegmentDetailOverlay {
+  journeyId: string;
+  left: number;
+  placement: 'above' | 'below';
+  top: number;
 }
 
 const DEFAULT_START_MINUTES = 0;
@@ -349,6 +356,8 @@ export function SkiCal({
   const [resourceOverrides, setResourceOverrides] = useState<
     Record<string, SkiCalResource>
   >({});
+  const [segmentDetailOverlay, setSegmentDetailOverlay] =
+    useState<SegmentDetailOverlay>();
   const [viewportSize, setViewportSize] = useState<ViewportSize>({
     height: 0,
     width: 0,
@@ -553,6 +562,36 @@ export function SkiCal({
       event.preventDefault();
       setSelectedJourneyId(journeyId);
     }
+  }
+
+  function handleSegmentDetailShow(
+    event: FocusEvent<HTMLElement> | MouseEvent<HTMLElement>,
+    journey: PositionedJourney,
+  ) {
+    if (!journey.segments?.length) {
+      return;
+    }
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const overlayWidth = Math.min(360, window.innerWidth - 40);
+    const belowTop = rect.bottom + 6;
+    const aboveTop = rect.top - 124;
+    const hasRoomBelow = belowTop + 120 < window.innerHeight;
+    const left = Math.min(
+      Math.max(rect.left + 6, 8),
+      Math.max(window.innerWidth - overlayWidth - 8, 8),
+    );
+
+    setSegmentDetailOverlay({
+      journeyId: journey.id,
+      left,
+      placement: hasRoomBelow || aboveTop < 8 ? 'below' : 'above',
+      top: hasRoomBelow || aboveTop < 8 ? belowTop : aboveTop,
+    });
+  }
+
+  function handleSegmentDetailHide() {
+    setSegmentDetailOverlay(undefined);
   }
 
   function formatScheduleTime(minute: number) {
@@ -802,7 +841,11 @@ export function SkiCal({
 
                 setSelectedJourneyId(journey.id);
               }}
+              onBlur={handleSegmentDetailHide}
+              onFocus={(event) => handleSegmentDetailShow(event, journey)}
               onKeyDown={(event) => handleJourneyKeyDown(event, journey.id)}
+              onMouseEnter={(event) => handleSegmentDetailShow(event, journey)}
+              onMouseLeave={handleSegmentDetailHide}
               role="button"
               style={getJourneyStyle(journey)}
               tabIndex={0}
@@ -854,20 +897,38 @@ export function SkiCal({
                       />
                     ))}
                   </span>
-                  <span className="ski-cal__segment-detail">
-                    <JourneySegmentGantt
-                      journeyEndMinutes={journey.endMinutes}
-                      journeyStartMinutes={journey.startMinutes}
-                      segments={journey.segments}
-                      timeOffsetMinutes={timeDisplayOffsetMinutes}
-                    />
-                  </span>
                 </>
               ) : null}
             </article>
           ))}
         </div>
       </div>
+
+      {segmentDetailOverlay ? (
+        <span
+          className={`ski-cal__segment-detail ski-cal__segment-detail--${segmentDetailOverlay.placement}`}
+          style={{
+            left: segmentDetailOverlay.left,
+            top: segmentDetailOverlay.top,
+          }}
+        >
+          {(() => {
+            const journey = positionedJourneys.find(
+              (positionedJourney) =>
+                positionedJourney.id === segmentDetailOverlay.journeyId,
+            );
+
+            return journey?.segments?.length ? (
+              <JourneySegmentGantt
+                journeyEndMinutes={journey.endMinutes}
+                journeyStartMinutes={journey.startMinutes}
+                segments={journey.segments}
+                timeOffsetMinutes={timeDisplayOffsetMinutes}
+              />
+            ) : null;
+          })()}
+        </span>
+      ) : null}
 
       <JourneyDetailsPanel
         journey={selectedJourney}

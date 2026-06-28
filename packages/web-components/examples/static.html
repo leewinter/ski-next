@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ski Next Web Components</title>
+    <link rel="stylesheet" href="../dist/style.css" />
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+        padding: 24px;
+      }
+
+      ski-cal {
+        display: block;
+        height: 680px;
+      }
+    </style>
+  </head>
+  <body>
+    <ski-button label="Static page button" type="primary" theme-mode="skiidy"></ski-button>
+
+    <ski-cal
+      end-time="2026-02-14T12:00:00+01:00"
+      orientation="horizontal"
+      start-time="2026-02-14T06:00:00+01:00"
+      theme-mode="skiidy"
+      title="Static HTML transfer board"
+      updated-label="Loaded from web components"
+    ></ski-cal>
+
+    <script src="../dist/ski-next-web-components.iife.js"></script>
+    <script>
+      const calendar = document.querySelector('ski-cal');
+
+      calendar.setAttribute(
+        'resources',
+        JSON.stringify([
+          {
+            id: 'bus-1',
+            name: '1',
+            requirements: [
+              { color: '#2563eb', id: 'passenger', kind: 'passenger', quantity: 1 },
+              { color: '#d97706', id: 'baby-seat', kind: 'babySeat', quantity: 1 },
+            ],
+          },
+          { id: 'bus-2', name: '2' },
+        ]),
+      );
+      calendar.setAttribute(
+        'journeys',
+        JSON.stringify([
+          {
+            id: 'journey-1',
+            resourceId: 'bus-1',
+            title: 'GVA > Morzine',
+            startDateTime: '2026-02-14T07:00:00+01:00',
+            endDateTime: '2026-02-14T09:00:00+01:00',
+            kind: 'private',
+            segments: [
+              {
+                id: 'pickup',
+                kind: 'pickup',
+                label: 'Airport pickup',
+                startDateTime: '2026-02-14T07:00:00+01:00',
+                endDateTime: '2026-02-14T07:20:00+01:00',
+              },
+              {
+                id: 'dropoff',
+                kind: 'dropoff',
+                label: 'Morzine dropoff',
+                startDateTime: '2026-02-14T08:40:00+01:00',
+                endDateTime: '2026-02-14T09:00:00+01:00',
+              },
+            ],
+          },
+        ]),
+      );
+
+      calendar.addEventListener('ski-journey-change', (event) => {
+        console.log('Journey changed', event.detail);
+      });
+    </script>
+  </body>
+</html>

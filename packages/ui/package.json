@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "main": "./dist/ski-next-ui.cjs",
   "module": "./dist/ski-next-ui.js",
   "types": "./dist/index.d.ts",
@@ -12,7 +14,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/ski-next-ui.js",
       "require": "./dist/ski-next-ui.cjs"
-    }
+    },
+    "./style.css": "./dist/style.css"
   },
   "files": [
     "dist"

@@ -463,30 +463,17 @@
 .ski-cal__segment-detail {
   background: var(--ski-cal-overlay-bg);
   color: var(--ski-cal-overlay-text);
-  left: 6px;
   min-width: min(360px, calc(100vw - 40px));
-  opacity: 0;
   padding: 8px;
   pointer-events: none;
-  position: absolute;
-  top: calc(100% + 4px);
-  transform: translateY(-2px);
-  transition:
-    opacity 120ms ease,
-    transform 120ms ease;
-  z-index: 7;
+  position: fixed;
+  z-index: 1000;
 }
 
 .ski-cal__journey:hover,
 .ski-cal__journey:focus-within {
   overflow: visible;
   z-index: 8;
-}
-
-.ski-cal__journey:hover .ski-cal__segment-detail,
-.ski-cal__journey:focus-within .ski-cal__segment-detail {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 @media (max-width: 720px) {
