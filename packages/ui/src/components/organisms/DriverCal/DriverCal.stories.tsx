@@ -102,9 +102,9 @@ type Story = StoryObj<typeof DriverCal>;
 export const Default: Story = {};
 
 export const Mobile: Story = {
-  parameters: {
+  globals: {
     viewport: {
-      defaultViewport: 'mobile1',
+      value: 'mobile2',
     },
   },
 };
