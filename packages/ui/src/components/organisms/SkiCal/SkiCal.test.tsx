@@ -73,6 +73,43 @@ test('opens journey details and saves edits', async ({ mount, page }) => {
   await expect(page.getByText('Updated transfer')).toBeVisible();
 });
 
+test('preserves timezone-qualified datetimes when saving details', async ({
+  mount,
+  page,
+}) => {
+  const changes: unknown[] = [];
+
+  await mount(
+    <SkiCal
+      endDateTime="2026-02-14T12:00:00+01:00"
+      journeys={[
+        {
+          id: 'timezone-journey',
+          resourceId: 'bus-1',
+          title: 'GVA > Morzine',
+          startDateTime: '2026-02-14T07:00:00+01:00',
+          endDateTime: '2026-02-14T09:00:00+01:00',
+          kind: 'private',
+        },
+      ]}
+      onJourneyChange={(journey) => changes.push(journey)}
+      resources={resources}
+      startDateTime="2026-02-14T06:00:00+01:00"
+    />,
+  );
+
+  await expect(page.getByRole('button', { name: /0700-0900/ })).toBeVisible();
+  await page.getByRole('button', { name: /GVA > Morzine/ }).click();
+  await page.getByRole('button', { name: 'Save' }).click();
+
+  expect(changes).toHaveLength(1);
+  expect(changes[0]).toMatchObject({
+    endDateTime: '2026-02-14T09:00+01:00',
+    startDateTime: '2026-02-14T07:00+01:00',
+  });
+  await expect(page.getByRole('button', { name: /0700-0900/ })).toBeVisible();
+});
+
 test('edits resource requirements from journey details', async ({ mount, page }) => {
   const resourceChanges: unknown[] = [];
 
@@ -164,7 +201,7 @@ test('edits segment datetimes from the visual timeline', async ({ mount, page })
   expect(changes[0]).toMatchObject({
     segments: [
       {
-        endDateTime: '2026-02-14T07:35',
+        endDateTime: '2026-02-14T07:35+01:00',
       },
     ],
   });

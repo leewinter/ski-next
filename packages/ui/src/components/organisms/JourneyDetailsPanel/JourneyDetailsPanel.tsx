@@ -53,6 +53,7 @@ const requirementKindOptions: ResourceRequirementKind[] = [
   'skiBag',
   'note',
 ];
+const TIME_ZONE_SUFFIX_PATTERN = /(Z|[+-]\d{2}:\d{2})$/;
 
 function getNumberValue(value: unknown) {
   if (value === '' || value === undefined || value === null) {
@@ -70,6 +71,27 @@ function getDateTimeMs(dateTime?: Date | string) {
   const time = dateTime instanceof Date ? dateTime.getTime() : Date.parse(dateTime);
 
   return Number.isFinite(time) ? time : undefined;
+}
+
+function getDateTimeZoneSuffix(dateTime?: Date | string) {
+  if (!dateTime || dateTime instanceof Date) {
+    return undefined;
+  }
+
+  return dateTime.match(TIME_ZONE_SUFFIX_PATTERN)?.[1];
+}
+
+function applyFallbackTimeZone(
+  dateTime: Date | string | undefined,
+  fallbackDateTime: Date | string | undefined,
+) {
+  if (!dateTime || dateTime instanceof Date || getDateTimeZoneSuffix(dateTime)) {
+    return dateTime;
+  }
+
+  const fallbackTimeZone = getDateTimeZoneSuffix(fallbackDateTime);
+
+  return fallbackTimeZone ? `${dateTime}${fallbackTimeZone}` : dateTime;
 }
 
 function getDateTimeInputValue(dateTime?: Date | string) {
@@ -199,20 +221,40 @@ function normalizeFormValue(
   return {
     ...fallbackJourney,
     ...value,
+    endDateTime: applyFallbackTimeZone(
+      value.endDateTime,
+      fallbackJourney.endDateTime,
+    ),
     endMinutes: getNumberValue(value.endMinutes) ?? fallbackJourney.endMinutes,
     segments: value.segments?.map((segment) => ({
       ...segment,
+      endDateTime: applyFallbackTimeZone(
+        segment.endDateTime,
+        fallbackJourney.segments?.find(
+          (fallbackSegment) => fallbackSegment.id === segment.id,
+        )?.endDateTime,
+      ),
       endMinutes:
         getNumberValue(segment.endMinutes) ??
         fallbackJourney.segments?.find(
           (fallbackSegment) => fallbackSegment.id === segment.id,
         )?.endMinutes,
+      startDateTime: applyFallbackTimeZone(
+        segment.startDateTime,
+        fallbackJourney.segments?.find(
+          (fallbackSegment) => fallbackSegment.id === segment.id,
+        )?.startDateTime,
+      ),
       startMinutes:
         getNumberValue(segment.startMinutes) ??
         fallbackJourney.segments?.find(
           (fallbackSegment) => fallbackSegment.id === segment.id,
         )?.startMinutes,
     })),
+    startDateTime: applyFallbackTimeZone(
+      value.startDateTime,
+      fallbackJourney.startDateTime,
+    ),
     startMinutes: getNumberValue(value.startMinutes) ?? fallbackJourney.startMinutes,
   };
 }
