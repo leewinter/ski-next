@@ -81,6 +81,27 @@ function getDateTimeZoneSuffix(dateTime?: Date | string) {
   return dateTime.match(TIME_ZONE_SUFFIX_PATTERN)?.[1];
 }
 
+function getDateTimeZoneOffsetMinutes(dateTime?: Date | string) {
+  const suffix = getDateTimeZoneSuffix(dateTime);
+
+  if (!suffix || suffix === 'Z') {
+    return 0;
+  }
+
+  const sign = suffix.startsWith('-') ? -1 : 1;
+  const [hours = '0', minutes = '0'] = suffix.slice(1).split(':');
+
+  return sign * (Number(hours) * 60 + Number(minutes));
+}
+
+function getDateTimeDisplayValue(dateTimeMs: number, referenceDateTime?: Date | string) {
+  const offsetMinutes = getDateTimeZoneOffsetMinutes(referenceDateTime);
+
+  return new Date(dateTimeMs + offsetMinutes * 60000)
+    .toISOString()
+    .slice(0, 16);
+}
+
 function applyFallbackTimeZone(
   dateTime: Date | string | undefined,
   fallbackDateTime: Date | string | undefined,
@@ -113,7 +134,10 @@ function getDateTimeFromOffset(baseDateTime: Date | string, offsetMinutes: numbe
     return undefined;
   }
 
-  return new Date(baseMs + offsetMinutes * 60000).toISOString().slice(0, 16);
+  return getDateTimeDisplayValue(
+    baseMs + offsetMinutes * 60000,
+    baseDateTime,
+  );
 }
 
 function getMinuteOffset(dateTime: Date | string | undefined, baseDateTime?: Date | string) {
@@ -146,7 +170,10 @@ function getSegmentStartOffset(
   journey: SkiCalJourney,
 ) {
   return Math.max(
-    getMinuteOffset(segment.startDateTime, journey.startDateTime) ??
+    getMinuteOffset(
+      applyFallbackTimeZone(segment.startDateTime, journey.startDateTime),
+      journey.startDateTime,
+    ) ??
       ((segment.startMinutes ?? journey.startMinutes ?? 0) -
         (journey.startMinutes ?? 0)),
     0,
@@ -158,7 +185,10 @@ function getSegmentEndOffset(
   journey: SkiCalJourney,
 ) {
   return Math.max(
-    getMinuteOffset(segment.endDateTime, journey.startDateTime) ??
+    getMinuteOffset(
+      applyFallbackTimeZone(segment.endDateTime, journey.startDateTime),
+      journey.startDateTime,
+    ) ??
       ((segment.endMinutes ?? segment.startMinutes ?? journey.startMinutes ?? 0) -
         (journey.startMinutes ?? 0)),
     0,
@@ -169,9 +199,10 @@ function formatOffsetTime(journey: SkiCalJourney, offsetMinutes: number) {
   const baseMs = getDateTimeMs(journey.startDateTime);
 
   if (baseMs !== undefined) {
-    return new Date(baseMs + offsetMinutes * 60000)
-      .toISOString()
-      .slice(11, 16);
+    return getDateTimeDisplayValue(
+      baseMs + offsetMinutes * 60000,
+      journey.startDateTime,
+    ).slice(11, 16);
   }
 
   const absoluteMinutes = (journey.startMinutes ?? 0) + offsetMinutes;

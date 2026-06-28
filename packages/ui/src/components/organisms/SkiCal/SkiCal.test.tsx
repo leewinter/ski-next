@@ -189,6 +189,12 @@ test('edits segment datetimes from the visual timeline', async ({ mount, page })
   await expect(
     page.getByRole('textbox', { name: 'Segment start' }),
   ).toHaveValue('2026-02-14T07:00');
+  await expect(
+    page.locator('.journey-details-panel__timeline-axis').first(),
+  ).toContainText('07:00');
+  await expect(
+    page.locator('.journey-details-panel__timeline-axis').first(),
+  ).toContainText('09:00');
 
   const segmentEndHandle = page.getByLabel('Adjust segment end');
   await segmentEndHandle.focus();
