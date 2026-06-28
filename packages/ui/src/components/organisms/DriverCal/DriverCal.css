@@ -1,0 +1,239 @@
+.driver-cal {
+  --driver-cal-header-size: 74px;
+  --driver-cal-border: var(--ski-next-color-border, #d9d9d9);
+  --driver-cal-grid: var(--ski-next-color-grid, #e8e8e8);
+  --driver-cal-grid-strong: var(--ski-next-color-grid-strong, #cfcfcf);
+  --driver-cal-surface: var(--ski-next-color-bg, #fff);
+  --driver-cal-muted: var(--ski-next-color-bg-layout, #f5f5f5);
+  --driver-cal-text: var(--ski-next-color-text, #1f1f1f);
+  --driver-cal-text-muted: var(--ski-next-color-text-muted, #6f6f6f);
+  --driver-cal-header: var(--ski-next-color-header-bg, #f5f5f5);
+  --driver-cal-header-text: var(--ski-next-color-header-text, #1f1f1f);
+  --driver-cal-pickup: #f05f57;
+  --driver-cal-transfer: #87cf8f;
+  --driver-cal-dropoff: #5fa56b;
+  --driver-cal-positioning: #fff176;
+  --driver-cal-buffer: #ff9f1a;
+  color: var(--driver-cal-text);
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.driver-cal__header {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.driver-cal__title {
+  font-size: 15px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.driver-cal__meta {
+  color: var(--driver-cal-text-muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.driver-cal__viewport {
+  border: 1px solid var(--driver-cal-border);
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.driver-cal__canvas {
+  background: var(--driver-cal-surface);
+  min-height: calc(var(--driver-cal-header-size) + var(--driver-cal-row-count) * 58px);
+  min-width: calc(var(--driver-cal-header-size) + var(--driver-cal-timeline-size));
+  position: relative;
+}
+
+.driver-cal__corner,
+.driver-cal__time-label,
+.driver-cal__row-label {
+  align-items: center;
+  background: var(--driver-cal-muted);
+  border-color: var(--driver-cal-border);
+  color: var(--driver-cal-text-muted);
+  display: flex;
+  font-size: 12px;
+  font-weight: 700;
+  justify-content: center;
+  position: absolute;
+  z-index: 2;
+}
+
+.driver-cal__corner {
+  background: var(--driver-cal-header);
+  color: var(--driver-cal-header-text);
+  height: var(--driver-cal-header-size);
+  left: 0;
+  top: 0;
+  width: var(--driver-cal-header-size);
+  z-index: 3;
+}
+
+.driver-cal__time-label {
+  border-left: 1px solid var(--driver-cal-border);
+  height: var(--driver-cal-header-size);
+  top: 0;
+  width: 48px;
+}
+
+.driver-cal__row-label {
+  align-items: flex-start;
+  border-bottom: 1px solid var(--driver-cal-border);
+  border-right: 1px solid var(--driver-cal-border);
+  flex-direction: column;
+  height: 54px;
+  left: 0;
+  padding: 5px;
+  width: var(--driver-cal-header-size);
+}
+
+.driver-cal__row-title,
+.driver-cal__row-meta,
+.driver-cal__segment-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.driver-cal__row-title {
+  color: var(--driver-cal-text);
+  max-width: 100%;
+}
+
+.driver-cal__row-meta {
+  color: var(--driver-cal-text-muted);
+  font-size: 10px;
+  font-weight: 400;
+  max-width: 100%;
+}
+
+.driver-cal__grid-line {
+  background: var(--driver-cal-grid);
+  position: absolute;
+  z-index: 1;
+}
+
+.driver-cal__grid-line--strong {
+  background: var(--driver-cal-grid-strong);
+}
+
+.driver-cal__grid-line--time {
+  bottom: 0;
+  top: var(--driver-cal-header-size);
+  width: 1px;
+}
+
+.driver-cal__grid-line--row {
+  height: 1px;
+  left: var(--driver-cal-header-size);
+  right: 0;
+}
+
+.driver-cal__segment {
+  border: 1px solid rgba(29, 32, 47, 0.28);
+  box-shadow: inset 0 -2px 0 rgba(29, 32, 47, 0.18);
+  box-sizing: border-box;
+  min-height: 38px;
+  padding: 5px 6px;
+  position: absolute;
+  z-index: 4;
+}
+
+.driver-cal__segment--pickup {
+  background: var(--driver-cal-pickup);
+}
+
+.driver-cal__segment--transfer,
+.driver-cal__segment--journey {
+  background: var(--driver-cal-transfer);
+}
+
+.driver-cal__segment--dropoff {
+  background: var(--driver-cal-dropoff);
+}
+
+.driver-cal__segment--positioning {
+  background: var(--driver-cal-positioning);
+}
+
+.driver-cal__segment--buffer {
+  background: var(--driver-cal-buffer);
+}
+
+.driver-cal__segment-title {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.driver-cal__segment-time {
+  display: block;
+  font-size: 10px;
+  opacity: 0.76;
+}
+
+@media (max-width: 560px) {
+  .driver-cal {
+    --driver-cal-header-size: 64px;
+    gap: 8px;
+  }
+
+  .driver-cal__header {
+    gap: 4px;
+  }
+
+  .driver-cal__title {
+    font-size: 14px;
+  }
+
+  .driver-cal__meta {
+    font-size: 11px;
+  }
+
+  .driver-cal__corner,
+  .driver-cal__time-label,
+  .driver-cal__row-label {
+    font-size: 10px;
+  }
+
+  .driver-cal__corner {
+    padding: 4px;
+    text-align: center;
+  }
+
+  .driver-cal__row-label {
+    padding: 4px;
+  }
+
+  .driver-cal__row-title {
+    font-size: 10px;
+  }
+
+  .driver-cal__row-meta {
+    font-size: 9px;
+  }
+
+  .driver-cal__segment {
+    min-height: 40px;
+    padding: 6px;
+  }
+
+  .driver-cal__segment-title {
+    font-size: 10px;
+  }
+
+  .driver-cal__segment-time {
+    font-size: 10px;
+  }
+}

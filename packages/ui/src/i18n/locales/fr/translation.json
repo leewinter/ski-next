@@ -2,6 +2,10 @@
   "button": {
     "submit": "Envoyer"
   },
+  "driverCal": {
+    "corner": "Arrêt / Heure",
+    "title": "Calendrier chauffeur"
+  },
   "journeySegmentGantt": {
     "label": "Chronologie des segments du trajet"
   },

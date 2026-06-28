@@ -7,6 +7,9 @@ export {
 export {
   Button,
   type ButtonProps,
+  DriverCal,
+  type DriverCalProps,
+  type DriverCalSegmentRow,
   JourneyDetailsPanel,
   type JourneyDetailsPanelProps,
   JourneySegmentGantt,

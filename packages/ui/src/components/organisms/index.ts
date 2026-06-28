@@ -1,4 +1,9 @@
 export {
+  DriverCal,
+  type DriverCalProps,
+  type DriverCalSegmentRow,
+} from './DriverCal';
+export {
   JourneyDetailsPanel,
   type JourneyDetailsPanelProps,
 } from './JourneyDetailsPanel';

@@ -2,6 +2,10 @@
   "button": {
     "submit": "Submit"
   },
+  "driverCal": {
+    "corner": "Stop / Time",
+    "title": "Driver calendar"
+  },
   "journeySegmentGantt": {
     "label": "Journey segment timeline"
   },

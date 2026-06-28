@@ -9,6 +9,9 @@ export {
   type ResourceRequirementsProps,
 } from './molecules';
 export {
+  DriverCal,
+  type DriverCalProps,
+  type DriverCalSegmentRow,
   JourneyDetailsPanel,
   type JourneyDetailsPanelProps,
   SkiCal,
