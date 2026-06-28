@@ -2,6 +2,7 @@
 import { createRequire } from "node:module";
 import { dirname, join } from 'node:path';
 import type { StorybookConfig } from '@storybook/react-vite';
+import type { PluginOption } from 'vite';
 
 const require = createRequire(import.meta.url);
 
@@ -16,7 +17,19 @@ const config: StorybookConfig = {
   framework: {
     name: getAbsolutePath('@storybook/react-vite'),
     options: {},
-  }
+  },
+  viteFinal: (config) => ({
+    ...config,
+    plugins: config.plugins?.filter((plugin) => !isDtsPlugin(plugin)),
+  }),
 };
+
+function isDtsPlugin(plugin: PluginOption): boolean {
+  if (!plugin || typeof plugin !== 'object' || Array.isArray(plugin)) {
+    return false;
+  }
+
+  return 'name' in plugin && plugin.name === 'vite:dts';
+}
 
 export default config;
