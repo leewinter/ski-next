@@ -3,7 +3,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "noEmit": true,
-    "emitDeclarationOnly": false
+    "emitDeclarationOnly": false,
+    "paths": {
+      "@ski-next/ui": ["../ui/src/index.ts"]
+    }
   },
   "include": ["src"]
 }
