@@ -562,6 +562,40 @@ export function SkiCal({
     }
   }
 
+  function handleJourneyResizeKeyDown(
+    event: KeyboardEvent<HTMLSpanElement>,
+    journey: PositionedJourney,
+    edge: 'start' | 'end',
+  ) {
+    const direction =
+      event.key === 'ArrowRight' || event.key === 'ArrowDown'
+        ? 1
+        : event.key === 'ArrowLeft' || event.key === 'ArrowUp'
+          ? -1
+          : 0;
+
+    if (direction === 0) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const currentMinute =
+      edge === 'start' ? journey.startMinutes : journey.endMinutes;
+    const nextJourney = getResizedJourney(
+      journey,
+      edge,
+      currentMinute + direction * RESIZE_STEP_MINUTES,
+    );
+
+    setJourneyOverrides((currentOverrides) => ({
+      ...currentOverrides,
+      [journey.id]: nextJourney,
+    }));
+    onJourneyChange?.(nextJourney);
+  }
+
   function handleSegmentDetailShow(
     event: FocusEvent<HTMLElement> | MouseEvent<HTMLElement>,
     journey: PositionedJourney,
@@ -853,21 +887,33 @@ export function SkiCal({
             >
               <span
                 aria-label={t('skiCal.resize.start')}
+                aria-valuemax={journey.endMinutes - RESIZE_STEP_MINUTES}
+                aria-valuemin={resolvedStartMinutes}
+                aria-valuenow={journey.startMinutes}
                 className="ski-cal__resize-handle ski-cal__resize-handle--start"
+                onKeyDown={(event) =>
+                  handleJourneyResizeKeyDown(event, journey, 'start')
+                }
                 onPointerDown={(event) =>
                   handleJourneyResizeStart(event, journey, 'start')
                 }
                 role="slider"
-                tabIndex={-1}
+                tabIndex={0}
               />
               <span
                 aria-label={t('skiCal.resize.end')}
+                aria-valuemax={resolvedEndMinutes}
+                aria-valuemin={journey.startMinutes + RESIZE_STEP_MINUTES}
+                aria-valuenow={journey.endMinutes}
                 className="ski-cal__resize-handle ski-cal__resize-handle--end"
+                onKeyDown={(event) =>
+                  handleJourneyResizeKeyDown(event, journey, 'end')
+                }
                 onPointerDown={(event) =>
                   handleJourneyResizeStart(event, journey, 'end')
                 }
                 role="slider"
-                tabIndex={-1}
+                tabIndex={0}
               />
               <span className="ski-cal__journey-title">{journey.title}</span>
               <span className="ski-cal__journey-time">

@@ -290,17 +290,8 @@ test('resizes a journey from the main calendar', async ({ mount, page }) => {
   );
 
   const endHandle = page.getByLabel('Resize journey end');
-  const box = await endHandle.boundingBox();
-  expect(box).not.toBeNull();
-
-  if (!box) {
-    return;
-  }
-
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2);
-  await page.mouse.up();
+  await endHandle.focus();
+  await endHandle.press('ArrowRight');
 
   expect(changes).toHaveLength(1);
   expect(changes[0]?.endMinutes).toBeGreaterThan(9 * 60);
