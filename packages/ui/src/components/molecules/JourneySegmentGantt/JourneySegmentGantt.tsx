@@ -5,37 +5,52 @@ export interface JourneySegmentGanttSegment {
   id: string;
   label: string;
   kind?: 'pickup' | 'dropoff' | 'transfer' | 'positioning' | 'buffer';
-  startMinutes?: number;
-  endMinutes?: number;
+  startDateTime?: Date | string;
+  endDateTime?: Date | string;
 }
 
 export interface JourneySegmentGanttProps {
-  journeyStartMinutes: number;
-  journeyEndMinutes: number;
+  journeyStartDateTime: Date | string;
+  journeyEndDateTime: Date | string;
   segments: JourneySegmentGanttSegment[];
-  timeOffsetMinutes?: number;
 }
 
-function formatTime(totalMinutes: number): string {
-  const normalized = ((totalMinutes % 1440) + 1440) % 1440;
-  const hours = Math.floor(normalized / 60);
-  const minutes = normalized % 60;
+function getDateTimeMs(dateTime?: Date | string) {
+  if (!dateTime) {
+    return undefined;
+  }
 
-  return `${hours.toString().padStart(2, '0')}${minutes
-    .toString()
-    .padStart(2, '0')}`;
+  const time = dateTime instanceof Date ? dateTime.getTime() : Date.parse(dateTime);
+
+  return Number.isFinite(time) ? time : undefined;
+}
+
+function formatDateTime(dateTime?: Date | string): string | undefined {
+  if (!dateTime) {
+    return undefined;
+  }
+
+  if (dateTime instanceof Date) {
+    return `${dateTime.getHours().toString().padStart(2, '0')}${dateTime
+      .getMinutes()
+      .toString()
+      .padStart(2, '0')}`;
+  }
+
+  const timeMatch = dateTime.match(/T(\d{2}):(\d{2})/);
+
+  return timeMatch ? `${timeMatch[1]}${timeMatch[2]}` : undefined;
 }
 
 function getSegmentPosition(
-  journeyStartMinutes: number,
-  journeyEndMinutes: number,
+  journeyStartMs: number,
+  journeyEndMs: number,
   segment: JourneySegmentGanttSegment,
 ) {
-  const duration = Math.max(journeyEndMinutes - journeyStartMinutes, 1);
-  const segmentStart = segment.startMinutes ?? journeyStartMinutes;
-  const segmentEnd = segment.endMinutes ?? segmentStart;
-  const left =
-    ((segmentStart - journeyStartMinutes) / duration) * 100;
+  const duration = Math.max(journeyEndMs - journeyStartMs, 1);
+  const segmentStart = getDateTimeMs(segment.startDateTime) ?? journeyStartMs;
+  const segmentEnd = getDateTimeMs(segment.endDateTime) ?? segmentStart;
+  const left = ((segmentStart - journeyStartMs) / duration) * 100;
   const width = ((segmentEnd - segmentStart) / duration) * 100;
 
   return {
@@ -44,26 +59,25 @@ function getSegmentPosition(
   };
 }
 
-function getTimeRange(
-  segment: JourneySegmentGanttSegment,
-  timeOffsetMinutes: number,
-) {
-  if (segment.startMinutes === undefined || segment.endMinutes === undefined) {
+function getTimeRange(segment: JourneySegmentGanttSegment) {
+  const startTime = formatDateTime(segment.startDateTime);
+  const endTime = formatDateTime(segment.endDateTime);
+
+  if (!startTime || !endTime) {
     return undefined;
   }
 
-  return `${formatTime(segment.startMinutes + timeOffsetMinutes)}-${formatTime(
-    segment.endMinutes + timeOffsetMinutes,
-  )}`;
+  return `${startTime}-${endTime}`;
 }
 
 export function JourneySegmentGantt({
-  journeyStartMinutes,
-  journeyEndMinutes,
+  journeyStartDateTime,
+  journeyEndDateTime,
   segments,
-  timeOffsetMinutes = 0,
 }: JourneySegmentGanttProps) {
   const { t } = useUiTranslation();
+  const journeyStartMs = getDateTimeMs(journeyStartDateTime) ?? 0;
+  const journeyEndMs = getDateTimeMs(journeyEndDateTime) ?? journeyStartMs + 1;
 
   return (
     <div
@@ -71,14 +85,14 @@ export function JourneySegmentGantt({
       className="journey-segment-gantt"
     >
       <div className="journey-segment-gantt__axis">
-        <span>{formatTime(journeyStartMinutes + timeOffsetMinutes)}</span>
+        <span>{formatDateTime(journeyStartDateTime)}</span>
         <span className="journey-segment-gantt__axis-line" />
-        <span>{formatTime(journeyEndMinutes + timeOffsetMinutes)}</span>
+        <span>{formatDateTime(journeyEndDateTime)}</span>
       </div>
 
       <div className="journey-segment-gantt__rows">
         {segments.map((segment) => {
-          const timeRange = getTimeRange(segment, timeOffsetMinutes);
+          const timeRange = getTimeRange(segment);
 
           return (
             <div className="journey-segment-gantt__row" key={segment.id}>
@@ -98,8 +112,8 @@ export function JourneySegmentGantt({
                     segment.kind ?? 'transfer'
                   }`}
                   style={getSegmentPosition(
-                    journeyStartMinutes,
-                    journeyEndMinutes,
+                    journeyStartMs,
+                    journeyEndMs,
                     segment,
                   )}
                 />

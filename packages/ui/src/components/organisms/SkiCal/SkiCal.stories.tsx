@@ -44,7 +44,7 @@ function getStoryDateTime(totalMinutes: number) {
   return `${year}-${month}-${day}T${hours}:${minutes}:00+01:00`;
 }
 
-const minuteJourneys: React.ComponentProps<typeof SkiCal>['journeys'] = [
+const minuteJourneys: SkiCalJourney[] = [
   {
     id: 'j1',
     resourceId: 'bus-1',
@@ -53,8 +53,20 @@ const minuteJourneys: React.ComponentProps<typeof SkiCal>['journeys'] = [
     endMinutes: 8 * 60 + 45,
     kind: 'private',
     segments: [
-      { id: 'j1-s1', kind: 'pickup', label: 'Airport pickup', startMinutes: 7 * 60, endMinutes: 7 * 60 + 20 },
-      { id: 'j1-s2', kind: 'dropoff', label: 'Morzine dropoff', startMinutes: 8 * 60 + 20, endMinutes: 8 * 60 + 45 },
+      {
+        id: 'j1-s1',
+        kind: 'pickup',
+        label: 'Airport pickup',
+        startDateTime: getStoryDateTime(7 * 60),
+        endDateTime: getStoryDateTime(7 * 60 + 20),
+      },
+      {
+        id: 'j1-s2',
+        kind: 'dropoff',
+        label: 'Morzine dropoff',
+        startDateTime: getStoryDateTime(8 * 60 + 20),
+        endDateTime: getStoryDateTime(8 * 60 + 45),
+      },
     ],
   },
   {
@@ -65,9 +77,27 @@ const minuteJourneys: React.ComponentProps<typeof SkiCal>['journeys'] = [
     endMinutes: 11 * 60 + 10,
     kind: 'shared',
     segments: [
-      { id: 'j2-s1', kind: 'pickup', label: 'GVA', startMinutes: 9 * 60, endMinutes: 9 * 60 + 20 },
-      { id: 'j2-s2', kind: 'transfer', label: 'Les Gets', startMinutes: 10 * 60 + 20, endMinutes: 10 * 60 + 35 },
-      { id: 'j2-s3', kind: 'dropoff', label: 'Morzine', startMinutes: 10 * 60 + 45, endMinutes: 11 * 60 + 10 },
+      {
+        id: 'j2-s1',
+        kind: 'pickup',
+        label: 'GVA',
+        startDateTime: getStoryDateTime(9 * 60),
+        endDateTime: getStoryDateTime(9 * 60 + 20),
+      },
+      {
+        id: 'j2-s2',
+        kind: 'transfer',
+        label: 'Les Gets',
+        startDateTime: getStoryDateTime(10 * 60 + 20),
+        endDateTime: getStoryDateTime(10 * 60 + 35),
+      },
+      {
+        id: 'j2-s3',
+        kind: 'dropoff',
+        label: 'Morzine',
+        startDateTime: getStoryDateTime(10 * 60 + 45),
+        endDateTime: getStoryDateTime(11 * 60 + 10),
+      },
     ],
   },
   {
@@ -86,8 +116,20 @@ const minuteJourneys: React.ComponentProps<typeof SkiCal>['journeys'] = [
     endMinutes: 10 * 60 + 30,
     kind: 'private',
     segments: [
-      { id: 'j4-s1', kind: 'pickup', label: 'Morzine pickup', startMinutes: 8 * 60 + 15, endMinutes: 8 * 60 + 35 },
-      { id: 'j4-s2', kind: 'dropoff', label: 'Airport dropoff', startMinutes: 10 * 60 + 10, endMinutes: 10 * 60 + 30 },
+      {
+        id: 'j4-s1',
+        kind: 'pickup',
+        label: 'Morzine pickup',
+        startDateTime: getStoryDateTime(8 * 60 + 15),
+        endDateTime: getStoryDateTime(8 * 60 + 35),
+      },
+      {
+        id: 'j4-s2',
+        kind: 'dropoff',
+        label: 'Airport dropoff',
+        startDateTime: getStoryDateTime(10 * 60 + 10),
+        endDateTime: getStoryDateTime(10 * 60 + 30),
+      },
     ],
   },
   {
@@ -99,11 +141,41 @@ const minuteJourneys: React.ComponentProps<typeof SkiCal>['journeys'] = [
     kind: 'shared',
     state: 'warning',
     segments: [
-      { id: 'j5-s1', kind: 'pickup', label: 'GVA', startMinutes: 10 * 60 + 15, endMinutes: 10 * 60 + 35 },
-      { id: 'j5-buffer', kind: 'buffer', label: 'Delay buffer', startMinutes: 12 * 60, endMinutes: 12 * 60 + 45 },
-      { id: 'j5-s2', kind: 'transfer', label: 'Morzine', startMinutes: 12 * 60 + 10, endMinutes: 12 * 60 + 25 },
-      { id: 'j5-s3', kind: 'dropoff', label: 'Avoriaz', startMinutes: 13 * 60, endMinutes: 13 * 60 + 25 },
-      { id: 'j5-s4', kind: 'positioning', label: 'Depot', startMinutes: 14 * 60, endMinutes: 14 * 60 + 20 },
+      {
+        id: 'j5-s1',
+        kind: 'pickup',
+        label: 'GVA',
+        startDateTime: getStoryDateTime(10 * 60 + 15),
+        endDateTime: getStoryDateTime(10 * 60 + 35),
+      },
+      {
+        id: 'j5-buffer',
+        kind: 'buffer',
+        label: 'Delay buffer',
+        startDateTime: getStoryDateTime(12 * 60),
+        endDateTime: getStoryDateTime(12 * 60 + 45),
+      },
+      {
+        id: 'j5-s2',
+        kind: 'transfer',
+        label: 'Morzine',
+        startDateTime: getStoryDateTime(12 * 60 + 10),
+        endDateTime: getStoryDateTime(12 * 60 + 25),
+      },
+      {
+        id: 'j5-s3',
+        kind: 'dropoff',
+        label: 'Avoriaz',
+        startDateTime: getStoryDateTime(13 * 60),
+        endDateTime: getStoryDateTime(13 * 60 + 25),
+      },
+      {
+        id: 'j5-s4',
+        kind: 'positioning',
+        label: 'Depot',
+        startDateTime: getStoryDateTime(14 * 60),
+        endDateTime: getStoryDateTime(14 * 60 + 20),
+      },
     ],
   },
   {
@@ -114,9 +186,27 @@ const minuteJourneys: React.ComponentProps<typeof SkiCal>['journeys'] = [
     endMinutes: 18 * 60 + 45,
     kind: 'shared',
     segments: [
-      { id: 'j7-s1', kind: 'pickup', label: 'Airport pickup', startMinutes: 15 * 60 + 30, endMinutes: 15 * 60 + 50 },
-      { id: 'j7-s2', kind: 'transfer', label: 'Morzine stop', startMinutes: 17 * 60 + 40, endMinutes: 17 * 60 + 55 },
-      { id: 'j7-s3', kind: 'dropoff', label: 'Avoriaz dropoff', startMinutes: 18 * 60 + 25, endMinutes: 18 * 60 + 45 },
+      {
+        id: 'j7-s1',
+        kind: 'pickup',
+        label: 'Airport pickup',
+        startDateTime: getStoryDateTime(15 * 60 + 30),
+        endDateTime: getStoryDateTime(15 * 60 + 50),
+      },
+      {
+        id: 'j7-s2',
+        kind: 'transfer',
+        label: 'Morzine stop',
+        startDateTime: getStoryDateTime(17 * 60 + 40),
+        endDateTime: getStoryDateTime(17 * 60 + 55),
+      },
+      {
+        id: 'j7-s3',
+        kind: 'dropoff',
+        label: 'Avoriaz dropoff',
+        startDateTime: getStoryDateTime(18 * 60 + 25),
+        endDateTime: getStoryDateTime(18 * 60 + 45),
+      },
     ],
   },
   {
@@ -143,17 +233,7 @@ const journeys = minuteJourneys.map((journey) => ({
     journey.endMinutes === undefined
       ? journey.endDateTime
       : getStoryDateTime(journey.endMinutes),
-  segments: journey.segments?.map((segment) => ({
-    ...segment,
-    endDateTime:
-      segment.endMinutes === undefined
-        ? segment.endDateTime
-        : getStoryDateTime(segment.endMinutes),
-    startDateTime:
-      segment.startMinutes === undefined
-        ? segment.startDateTime
-        : getStoryDateTime(segment.startMinutes),
-  })),
+  segments: journey.segments,
   startDateTime:
     journey.startMinutes === undefined
       ? journey.startDateTime
@@ -167,21 +247,23 @@ const resizeInteractionJourneys = [
     title: 'GVA > Morzine',
     startMinutes: 7 * 60,
     endMinutes: 9 * 60,
+    startDateTime: getStoryDateTime(7 * 60),
+    endDateTime: getStoryDateTime(9 * 60),
     kind: 'private',
     segments: [
       {
         id: 'resize-demo-pickup',
         kind: 'pickup',
         label: 'Airport pickup',
-        startMinutes: 7 * 60,
-        endMinutes: 7 * 60 + 20,
+        startDateTime: getStoryDateTime(7 * 60),
+        endDateTime: getStoryDateTime(7 * 60 + 20),
       },
       {
         id: 'resize-demo-dropoff',
         kind: 'dropoff',
         label: 'Morzine dropoff',
-        startMinutes: 8 * 60 + 40,
-        endMinutes: 9 * 60,
+        startDateTime: getStoryDateTime(8 * 60 + 40),
+        endDateTime: getStoryDateTime(9 * 60),
       },
     ],
   },

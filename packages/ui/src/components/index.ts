@@ -1,5 +1,10 @@
 export { Button, type ButtonProps } from './atoms';
 export {
+  EditableJourneySegmentGantt,
+  type EditableJourneySegmentGanttChange,
+  type EditableJourneySegmentGanttEdge,
+  type EditableJourneySegmentGanttProps,
+  type EditableJourneySegmentGanttSegment,
   JourneySegmentGantt,
   type JourneySegmentGanttProps,
   type JourneySegmentGanttSegment,

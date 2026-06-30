@@ -6,6 +6,11 @@
     "corner": "Stop / Time",
     "title": "Driver calendar"
   },
+  "editableJourneySegmentGantt": {
+    "adjustSegmentEnd": "Adjust segment end",
+    "adjustSegmentStart": "Adjust segment start",
+    "label": "Editable journey segment timeline"
+  },
   "journeySegmentGantt": {
     "label": "Journey segment timeline"
   },

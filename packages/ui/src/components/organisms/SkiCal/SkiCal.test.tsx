@@ -110,6 +110,69 @@ test('preserves timezone-qualified datetimes when saving details', async ({
   await expect(page.getByRole('button', { name: /0700-0900/ })).toBeVisible();
 });
 
+test('prevents journey and segment start datetimes after their end datetimes', async ({
+  mount,
+  page,
+}) => {
+  const changes: unknown[] = [];
+
+  await mount(
+    <SkiCal
+      endDateTime="2026-02-14T12:00:00+01:00"
+      journeys={[
+        {
+          id: 'ordered-journey',
+          resourceId: 'bus-1',
+          title: 'GVA > Morzine',
+          startDateTime: '2026-02-14T07:00:00+01:00',
+          endDateTime: '2026-02-14T09:00:00+01:00',
+          kind: 'private',
+          segments: [
+            {
+              id: 'pickup',
+              kind: 'pickup',
+              label: 'Airport pickup',
+              startDateTime: '2026-02-14T07:00:00+01:00',
+              endDateTime: '2026-02-14T07:20:00+01:00',
+            },
+          ],
+        },
+      ]}
+      onJourneyChange={(journey) => changes.push(journey)}
+      resources={resources}
+      startDateTime="2026-02-14T06:00:00+01:00"
+    />,
+  );
+
+  await page.getByRole('button', { name: /GVA > Morzine/ }).click();
+
+  await page.getByRole('textbox', { name: 'Start time' }).fill('2026-02-14T10:00');
+  await expect(page.getByRole('textbox', { name: 'End time' })).toHaveValue(
+    '2026-02-14T10:00',
+  );
+
+  await page
+    .getByRole('textbox', { name: 'Segment start' })
+    .fill('2026-02-14T08:00');
+  await expect(page.getByRole('textbox', { name: 'Segment end' })).toHaveValue(
+    '2026-02-14T08:00',
+  );
+
+  await page.getByRole('button', { name: 'Save' }).click();
+
+  expect(changes).toHaveLength(1);
+  expect(changes[0]).toMatchObject({
+    endDateTime: '2026-02-14T10:00+01:00',
+    segments: [
+      {
+        endDateTime: '2026-02-14T08:00+01:00',
+        startDateTime: '2026-02-14T08:00+01:00',
+      },
+    ],
+    startDateTime: '2026-02-14T10:00+01:00',
+  });
+});
+
 test('edits resource requirements from journey details', async ({ mount, page }) => {
   const resourceChanges: unknown[] = [];
 

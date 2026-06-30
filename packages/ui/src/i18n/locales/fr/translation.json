@@ -6,6 +6,11 @@
     "corner": "Arrêt / Heure",
     "title": "Calendrier chauffeur"
   },
+  "editableJourneySegmentGantt": {
+    "adjustSegmentEnd": "Ajuster la fin du segment",
+    "adjustSegmentStart": "Ajuster le début du segment",
+    "label": "Chronologie éditable des segments du trajet"
+  },
   "journeySegmentGantt": {
     "label": "Chronologie des segments du trajet"
   },

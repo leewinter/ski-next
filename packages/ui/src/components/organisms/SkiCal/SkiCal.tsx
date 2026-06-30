@@ -22,8 +22,6 @@ export interface SkiCalJourneySegment {
   id: string;
   label: string;
   kind?: 'pickup' | 'dropoff' | 'transfer' | 'positioning' | 'buffer';
-  startMinutes?: number;
-  endMinutes?: number;
   startDateTime?: SkiCalDateTime;
   endDateTime?: SkiCalDateTime;
 }
@@ -59,8 +57,8 @@ export interface SkiCalProps {
 }
 
 interface NormalizedJourneySegment extends SkiCalJourneySegment {
-  startMinutes?: number;
-  endMinutes?: number;
+  startMinutes: number;
+  endMinutes: number;
 }
 
 interface NormalizedJourney extends SkiCalJourney {
@@ -235,10 +233,10 @@ function normalizeJourneys(
         ...segment,
         endMinutes:
           getMinuteFromDateTime(segment.endDateTime, timelineStartMs) ??
-          segment.endMinutes,
+          journeyEndMinutes,
         startMinutes:
           getMinuteFromDateTime(segment.startDateTime, timelineStartMs) ??
-          segment.startMinutes,
+          journeyStartMinutes,
       })),
     };
   });
@@ -920,10 +918,27 @@ export function SkiCal({
 
             return journey?.segments?.length ? (
               <JourneySegmentGantt
-                journeyEndMinutes={journey.endMinutes}
-                journeyStartMinutes={journey.startMinutes}
-                segments={journey.segments}
-                timeOffsetMinutes={timeDisplayOffsetMinutes}
+                journeyEndDateTime={
+                  journey.endDateTime ??
+                  getDateTimeFromTimelineMinute(journey.endMinutes, timelineStartMs) ??
+                  new Date(journey.endMinutes * 60000).toISOString()
+                }
+                journeyStartDateTime={
+                  journey.startDateTime ??
+                  getDateTimeFromTimelineMinute(journey.startMinutes, timelineStartMs) ??
+                  new Date(journey.startMinutes * 60000).toISOString()
+                }
+                segments={journey.segments.map((segment) => ({
+                  ...segment,
+                  endDateTime:
+                    segment.endDateTime ??
+                    getDateTimeFromTimelineMinute(segment.endMinutes, timelineStartMs) ??
+                    new Date(segment.endMinutes * 60000).toISOString(),
+                  startDateTime:
+                    segment.startDateTime ??
+                    getDateTimeFromTimelineMinute(segment.startMinutes, timelineStartMs) ??
+                    new Date(segment.startMinutes * 60000).toISOString(),
+                }))}
               />
             ) : null;
           })()}

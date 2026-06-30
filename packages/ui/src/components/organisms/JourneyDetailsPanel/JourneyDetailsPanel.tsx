@@ -73,6 +73,33 @@ function getDateTimeMs(dateTime?: Date | string) {
   return Number.isFinite(time) ? time : undefined;
 }
 
+function isDateTimeAfter(
+  startDateTime?: Date | string,
+  endDateTime?: Date | string,
+) {
+  const startMs = getDateTimeMs(startDateTime);
+  const endMs = getDateTimeMs(endDateTime);
+
+  return startMs !== undefined && endMs !== undefined && startMs > endMs;
+}
+
+function getOrderedDateTimes(
+  startDateTime: Date | string | undefined,
+  endDateTime: Date | string | undefined,
+) {
+  if (isDateTimeAfter(startDateTime, endDateTime)) {
+    return {
+      endDateTime: startDateTime,
+      startDateTime,
+    };
+  }
+
+  return {
+    endDateTime,
+    startDateTime,
+  };
+}
+
 function getDateTimeZoneSuffix(dateTime?: Date | string) {
   if (!dateTime || dateTime instanceof Date) {
     return undefined;
@@ -173,9 +200,7 @@ function getSegmentStartOffset(
     getMinuteOffset(
       applyFallbackTimeZone(segment.startDateTime, journey.startDateTime),
       journey.startDateTime,
-    ) ??
-      ((segment.startMinutes ?? journey.startMinutes ?? 0) -
-        (journey.startMinutes ?? 0)),
+    ) ?? 0,
     0,
   );
 }
@@ -188,9 +213,7 @@ function getSegmentEndOffset(
     getMinuteOffset(
       applyFallbackTimeZone(segment.endDateTime, journey.startDateTime),
       journey.startDateTime,
-    ) ??
-      ((segment.endMinutes ?? segment.startMinutes ?? journey.startMinutes ?? 0) -
-        (journey.startMinutes ?? 0)),
+    ) ?? getSegmentStartOffset(segment, journey),
     0,
   );
 }
@@ -230,15 +253,11 @@ function prepareFormValue(journey: SkiCalJourney): JourneyDetailsFormValue {
           (journey.startDateTime
             ? getDateTimeFromOffset(journey.startDateTime, endOffset)
             : undefined),
-        endMinutes:
-          segment.endMinutes ?? (journey.startMinutes ?? 0) + endOffset,
         startDateTime:
           getDateTimeInputValue(segment.startDateTime) ??
           (journey.startDateTime
             ? getDateTimeFromOffset(journey.startDateTime, startOffset)
             : undefined),
-        startMinutes:
-          segment.startMinutes ?? (journey.startMinutes ?? 0) + startOffset,
       };
     }),
     startDateTime: getDateTimeInputValue(journey.startDateTime),
@@ -249,44 +268,50 @@ function normalizeFormValue(
   value: JourneyDetailsFormValue,
   fallbackJourney: SkiCalJourney,
 ): SkiCalJourney {
+  const startDateTime = applyFallbackTimeZone(
+    value.startDateTime,
+    fallbackJourney.startDateTime,
+  );
+  const endDateTime = applyFallbackTimeZone(
+    value.endDateTime,
+    fallbackJourney.endDateTime,
+  );
+  const orderedJourneyDateTimes = getOrderedDateTimes(
+    startDateTime,
+    endDateTime,
+  );
+
   return {
     ...fallbackJourney,
     ...value,
-    endDateTime: applyFallbackTimeZone(
-      value.endDateTime,
-      fallbackJourney.endDateTime,
-    ),
+    endDateTime: orderedJourneyDateTimes.endDateTime,
     endMinutes: getNumberValue(value.endMinutes) ?? fallbackJourney.endMinutes,
-    segments: value.segments?.map((segment) => ({
-      ...segment,
-      endDateTime: applyFallbackTimeZone(
-        segment.endDateTime,
-        fallbackJourney.segments?.find(
-          (fallbackSegment) => fallbackSegment.id === segment.id,
-        )?.endDateTime,
-      ),
-      endMinutes:
-        getNumberValue(segment.endMinutes) ??
-        fallbackJourney.segments?.find(
-          (fallbackSegment) => fallbackSegment.id === segment.id,
-        )?.endMinutes,
-      startDateTime: applyFallbackTimeZone(
+    segments: value.segments?.map((segment) => {
+      const fallbackSegment = fallbackJourney.segments?.find(
+        (candidate) => candidate.id === segment.id,
+      );
+      const segmentStartDateTime = applyFallbackTimeZone(
         segment.startDateTime,
-        fallbackJourney.segments?.find(
-          (fallbackSegment) => fallbackSegment.id === segment.id,
-        )?.startDateTime,
-      ),
-      startMinutes:
-        getNumberValue(segment.startMinutes) ??
-        fallbackJourney.segments?.find(
-          (fallbackSegment) => fallbackSegment.id === segment.id,
-        )?.startMinutes,
-    })),
-    startDateTime: applyFallbackTimeZone(
-      value.startDateTime,
-      fallbackJourney.startDateTime,
-    ),
-    startMinutes: getNumberValue(value.startMinutes) ?? fallbackJourney.startMinutes,
+        fallbackSegment?.startDateTime,
+      );
+      const segmentEndDateTime = applyFallbackTimeZone(
+        segment.endDateTime,
+        fallbackSegment?.endDateTime,
+      );
+      const orderedSegmentDateTimes = getOrderedDateTimes(
+        segmentStartDateTime,
+        segmentEndDateTime,
+      );
+
+      return {
+        ...segment,
+        endDateTime: orderedSegmentDateTimes.endDateTime,
+        startDateTime: orderedSegmentDateTimes.startDateTime,
+      };
+    }),
+    startDateTime: orderedJourneyDateTimes.startDateTime,
+    startMinutes:
+      getNumberValue(value.startMinutes) ?? fallbackJourney.startMinutes,
   };
 }
 
@@ -300,8 +325,10 @@ export function JourneyDetailsPanel({
 }: JourneyDetailsPanelProps) {
   const { t } = useUiTranslation();
   const [form] = Form.useForm<JourneyDetailsFormValue>();
+  const watchedEndDateTime = Form.useWatch('endDateTime', form);
   const watchedSegments = Form.useWatch('segments', form);
   const watchedResourceId = Form.useWatch('resourceId', form);
+  const watchedStartDateTime = Form.useWatch('startDateTime', form);
   const selectedResource = useMemo(
     () =>
       resources.find(
@@ -387,6 +414,44 @@ export function JourneyDetailsPanel({
     );
   }
 
+  function handleJourneyDateTimeChange(
+    edge: 'start' | 'end',
+    value: string,
+  ) {
+    const startDateTime =
+      edge === 'start' ? value : form.getFieldValue('startDateTime');
+    const endDateTime =
+      edge === 'end' ? value : form.getFieldValue('endDateTime');
+
+    if (!isDateTimeAfter(startDateTime, endDateTime)) {
+      return;
+    }
+
+    form.setFieldValue(edge === 'start' ? 'endDateTime' : 'startDateTime', value);
+  }
+
+  function handleSegmentDateTimeChange(
+    index: number,
+    edge: 'start' | 'end',
+    value: string,
+  ) {
+    const segments = [...(form.getFieldValue('segments') ?? [])];
+    const segment = segments[index] ?? {};
+    const startDateTime = edge === 'start' ? value : segment.startDateTime;
+    const endDateTime = edge === 'end' ? value : segment.endDateTime;
+
+    if (!isDateTimeAfter(startDateTime, endDateTime)) {
+      return;
+    }
+
+    segments[index] = {
+      ...segment,
+      [edge === 'start' ? 'endDateTime' : 'startDateTime']: value,
+    };
+
+    form.setFieldValue('segments', segments);
+  }
+
   function handleSegmentRangeChange(
     index: number,
     edge: 'start' | 'end',
@@ -414,11 +479,9 @@ export function JourneyDetailsPanel({
       endDateTime: journey.startDateTime
         ? getDateTimeFromOffset(journey.startDateTime, nextEnd)
         : segment.endDateTime,
-      endMinutes: (journey.startMinutes ?? 0) + nextEnd,
       startDateTime: journey.startDateTime
         ? getDateTimeFromOffset(journey.startDateTime, nextStart)
         : segment.startDateTime,
-      startMinutes: (journey.startMinutes ?? 0) + nextStart,
     };
 
     form.setFieldValue('segments', segments);
@@ -503,14 +566,29 @@ export function JourneyDetailsPanel({
               label={t('journeyDetailsPanel.fields.startDateTime')}
               name="startDateTime"
             >
-              <Input type="datetime-local" />
+              <Input
+                max={getDateTimeInputValue(watchedEndDateTime)}
+                onChange={(event) =>
+                  handleJourneyDateTimeChange(
+                    'start',
+                    event.currentTarget.value,
+                  )
+                }
+                type="datetime-local"
+              />
             </Form.Item>
 
             <Form.Item
               label={t('journeyDetailsPanel.fields.endDateTime')}
               name="endDateTime"
             >
-              <Input type="datetime-local" />
+              <Input
+                min={getDateTimeInputValue(watchedStartDateTime)}
+                onChange={(event) =>
+                  handleJourneyDateTimeChange('end', event.currentTarget.value)
+                }
+                type="datetime-local"
+              />
             </Form.Item>
           </div>
 
@@ -636,14 +714,38 @@ export function JourneyDetailsPanel({
                         label={t('journeyDetailsPanel.fields.segmentStartDateTime')}
                         name={[field.name, 'startDateTime']}
                       >
-                        <Input type="datetime-local" />
+                        <Input
+                          max={getDateTimeInputValue(
+                            watchedSegments?.[field.name]?.endDateTime,
+                          )}
+                          onChange={(event) =>
+                            handleSegmentDateTimeChange(
+                              field.name,
+                              'start',
+                              event.currentTarget.value,
+                            )
+                          }
+                          type="datetime-local"
+                        />
                       </Form.Item>
 
                       <Form.Item
                         label={t('journeyDetailsPanel.fields.segmentEndDateTime')}
                         name={[field.name, 'endDateTime']}
                       >
-                        <Input type="datetime-local" />
+                        <Input
+                          min={getDateTimeInputValue(
+                            watchedSegments?.[field.name]?.startDateTime,
+                          )}
+                          onChange={(event) =>
+                            handleSegmentDateTimeChange(
+                              field.name,
+                              'end',
+                              event.currentTarget.value,
+                            )
+                          }
+                          type="datetime-local"
+                        />
                       </Form.Item>
                     </div>
 
@@ -662,16 +764,12 @@ export function JourneyDetailsPanel({
                       startDateTime: journey?.startDateTime
                         ? getDateTimeFromOffset(journey.startDateTime, 0)
                         : undefined,
-                      startMinutes: journey?.startMinutes,
                       endDateTime: journey?.startDateTime
                         ? getDateTimeFromOffset(
                             journey.startDateTime,
                             DEFAULT_SEGMENT_DURATION_MINUTES,
                           )
                         : undefined,
-                      endMinutes:
-                        (journey?.startMinutes ?? 0) +
-                        DEFAULT_SEGMENT_DURATION_MINUTES,
                     })
                   }
                   type="dashed"

@@ -159,7 +159,7 @@ function getRows(
     for (const segment of journey.segments) {
       rows.push({
         endMinutes: resolveMinute(
-          segment.endMinutes,
+          undefined,
           segment.endDateTime,
           timelineStartMs,
           journeyEnd,
@@ -170,7 +170,7 @@ function getRows(
         label: segment.label,
         segment,
         startMinutes: resolveMinute(
-          segment.startMinutes,
+          undefined,
           segment.startDateTime,
           timelineStartMs,
           journeyStart,
